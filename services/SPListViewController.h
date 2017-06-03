@@ -9,5 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface SPListViewController : UIViewController
+@property (weak,nonatomic) NSString *serviceId;
+
 
 @end

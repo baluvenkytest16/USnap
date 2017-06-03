@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
-@interface CustomizeViewController : UIViewController
+@interface CustomizeViewController : UIViewController<UITableViewDataSource,UITableViewDelegate>
+@property(nonatomic) NSString *serviceId;
+
 
 @end

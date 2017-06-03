@@ -1,15 +1,14 @@
 //
-//  SelectSPTableViewCell.m
+//  HeaderTableViewCell.m
 //  services
 //
-//  Created by Mac on 5/10/17.
+//  Created by Mac on 5/11/17.
 //  Copyright © 2017 Mac. All rights reserved.
 //
 
-#import "SelectSPTableViewCell.h"
-#import "DemoCollectionViewCell.h"
+#import "HeaderTableViewCell.h"
 
-@implementation SelectSPTableViewCell
+@implementation HeaderTableViewCell
 
 - (void)awakeFromNib {
     [super awakeFromNib];
@@ -18,16 +17,8 @@
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
     [super setSelected:selected animated:animated];
-    
-    if(selected){
-        [self.main_checkbox setOn:YES];
-    }else{
-        [self.main_checkbox setOn:NO];
 
-    }
     // Configure the view for the selected state
 }
-
-
 
 @end

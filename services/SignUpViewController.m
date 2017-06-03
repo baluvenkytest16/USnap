@@ -208,7 +208,7 @@
         id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
         NSLog(@"%@",[json objectForKey:@"error_code"]);
         
-        if([json objectForKey:@"error_code"]!=NULL){
+        if([json objectForKey:@"error_code"]!=NULL){ 
             
             [self showAlert:[json objectForKey:@"message"] withtittle:@"Error"];
         }

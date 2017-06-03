@@ -15,7 +15,7 @@
             <rect key="frame" x="0.0" y="0.0" width="320" height="68"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
-                <rect key="frame" x="0.0" y="0.0" width="320" height="67"/>
+                <rect key="frame" x="0.0" y="0.0" width="320" height="67.5"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3Xg-sl-U5W">
@@ -136,11 +136,20 @@
                     <constraint firstItem="3Xg-sl-U5W" firstAttribute="width" secondItem="H2p-sc-9uM" secondAttribute="width" id="j5h-Ej-Ygf"/>
                 </constraints>
             </tableViewCellContentView>
+            <connections>
+                <outlet property="sp_address" destination="uIK-eY-lVh" id="lyr-IF-Uib"/>
+                <outlet property="sp_contact_now" destination="OKn-gA-23x" id="AQk-tB-ZPI"/>
+                <outlet property="sp_distance" destination="ZP7-Lb-nqU" id="Ed7-wL-qDZ"/>
+                <outlet property="sp_logo" destination="ChL-Qh-COu" id="6qY-lS-kIm"/>
+                <outlet property="sp_name" destination="ZOH-zH-ipv" id="dcC-pQ-Sbs"/>
+                <outlet property="sp_rate" destination="qqU-E3-u3d" id="Bue-cJ-dch"/>
+                <outlet property="sp_rating" destination="zuj-c2-SGC" id="gSY-Fo-e01"/>
+            </connections>
             <point key="canvasLocation" x="68" y="66"/>
         </tableViewCell>
     </objects>
     <resources>
-        <image name="ac" width="94" height="67"/>
+        <image name="ac" width="47" height="33"/>
         <image name="full-star" width="30" height="28"/>
         <image name="location-gray" width="14" height="19"/>
         <image name="right-blue" width="6" height="12"/>

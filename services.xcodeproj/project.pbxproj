@@ -26,6 +26,7 @@
 		048E06621EA8A81900AC1149 /* MenuTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 048E06601EA8A81900AC1149 /* MenuTableViewCell.m */; };
 		048E06631EA8A81900AC1149 /* MenuTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 048E06611EA8A81900AC1149 /* MenuTableViewCell.xib */; };
 		048FAD681EC0493500E90A31 /* SPSignUpViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 048FAD671EC0493500E90A31 /* SPSignUpViewController.m */; };
+		04ACC2E81ECED88600F75F3E /* ServiceProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 04ACC2E71ECED88600F75F3E /* ServiceProvider.m */; };
 		04B9528C1EA9D2DB009B7F50 /* BannerCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 04B9528B1EA9D2DB009B7F50 /* BannerCollectionViewCell.m */; };
 		04B952A91EA9E657009B7F50 /* KICamera.png in Resources */ = {isa = PBXBuildFile; fileRef = 04B952A51EA9E657009B7F50 /* KICamera.png */; };
 		04B952AA1EA9E657009B7F50 /* KICamera@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 04B952A61EA9E657009B7F50 /* KICamera@2x.png */; };
@@ -41,11 +42,16 @@
 		04B952CA1EACF722009B7F50 /* DetailThirdTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 04B952C81EACF722009B7F50 /* DetailThirdTableViewCell.m */; };
 		04B952CB1EACF722009B7F50 /* DetailThirdTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 04B952C91EACF722009B7F50 /* DetailThirdTableViewCell.xib */; };
 		04BE116C1EBA0942009F2096 /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04BE116B1EBA0942009F2096 /* SettingsViewController.m */; };
+		04C2776B1ED80E8E00C44BAD /* NSDictionary+JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 04C277691ED80E8E00C44BAD /* NSDictionary+JSON.m */; };
 		04D82CA21EBC6D4E00F9AE72 /* MyWarrantysViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D82CA11EBC6D4E00F9AE72 /* MyWarrantysViewController.m */; };
 		04D82CA51EBC6D6300F9AE72 /* OrderHistoryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D82CA41EBC6D6300F9AE72 /* OrderHistoryViewController.m */; };
 		04D82CA81EBC6D7A00F9AE72 /* NotificationsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D82CA71EBC6D7A00F9AE72 /* NotificationsViewController.m */; };
 		04D82CAB1EBC6D8B00F9AE72 /* SearchViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D82CAA1EBC6D8B00F9AE72 /* SearchViewController.m */; };
 		04DF97881EC43E5D0093391E /* CustomizeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04DF97871EC43E5D0093391E /* CustomizeViewController.m */; };
+		04DF978F1EC471E30093391E /* CustomizeTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 04DF978D1EC471E30093391E /* CustomizeTableViewCell.m */; };
+		04DF97901EC471E30093391E /* CustomizeTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 04DF978E1EC471E30093391E /* CustomizeTableViewCell.xib */; };
+		04DF97941EC483270093391E /* HeaderTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 04DF97921EC483270093391E /* HeaderTableViewCell.m */; };
+		04DF97951EC483270093391E /* HeaderTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 04DF97931EC483270093391E /* HeaderTableViewCell.xib */; };
 		52EADD7378BA4DCA9DBB91E1 /* Pods_services.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0340A8E20F57B910345597CB /* Pods_services.framework */; };
 		58B2385FE55F9325DD577FB9 /* Pods_servicesTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CE11ED6E9EEB6A9951E2664 /* Pods_servicesTests.framework */; };
 		8457BD6F8F66DBD64807C3B8 /* Pods_servicesUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5E0A1912FF4A4F1582AA87D /* Pods_servicesUITests.framework */; };
@@ -105,6 +111,8 @@
 		048E06611EA8A81900AC1149 /* MenuTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MenuTableViewCell.xib; sourceTree = "<group>"; };
 		048FAD661EC0493500E90A31 /* SPSignUpViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPSignUpViewController.h; sourceTree = "<group>"; };
 		048FAD671EC0493500E90A31 /* SPSignUpViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SPSignUpViewController.m; sourceTree = "<group>"; };
+		04ACC2E61ECED88600F75F3E /* ServiceProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServiceProvider.h; sourceTree = "<group>"; };
+		04ACC2E71ECED88600F75F3E /* ServiceProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServiceProvider.m; sourceTree = "<group>"; };
 		04B9528A1EA9D2DB009B7F50 /* BannerCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BannerCollectionViewCell.h; sourceTree = "<group>"; };
 		04B9528B1EA9D2DB009B7F50 /* BannerCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BannerCollectionViewCell.m; sourceTree = "<group>"; };
 		04B952A51EA9E657009B7F50 /* KICamera.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = KICamera.png; sourceTree = "<group>"; };
@@ -129,6 +137,8 @@
 		04B952C91EACF722009B7F50 /* DetailThirdTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DetailThirdTableViewCell.xib; sourceTree = "<group>"; };
 		04BE116A1EBA0942009F2096 /* SettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsViewController.h; sourceTree = "<group>"; };
 		04BE116B1EBA0942009F2096 /* SettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingsViewController.m; sourceTree = "<group>"; };
+		04C277691ED80E8E00C44BAD /* NSDictionary+JSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+JSON.m"; sourceTree = "<group>"; };
+		04C2776A1ED80E8E00C44BAD /* NSDictionary+JSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+JSON.h"; sourceTree = "<group>"; };
 		04D82CA01EBC6D4E00F9AE72 /* MyWarrantysViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyWarrantysViewController.h; sourceTree = "<group>"; };
 		04D82CA11EBC6D4E00F9AE72 /* MyWarrantysViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyWarrantysViewController.m; sourceTree = "<group>"; };
 		04D82CA31EBC6D6300F9AE72 /* OrderHistoryViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OrderHistoryViewController.h; sourceTree = "<group>"; };
@@ -139,6 +149,12 @@
 		04D82CAA1EBC6D8B00F9AE72 /* SearchViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SearchViewController.m; sourceTree = "<group>"; };
 		04DF97861EC43E5D0093391E /* CustomizeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomizeViewController.h; sourceTree = "<group>"; };
 		04DF97871EC43E5D0093391E /* CustomizeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomizeViewController.m; sourceTree = "<group>"; };
+		04DF978C1EC471E30093391E /* CustomizeTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomizeTableViewCell.h; sourceTree = "<group>"; };
+		04DF978D1EC471E30093391E /* CustomizeTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomizeTableViewCell.m; sourceTree = "<group>"; };
+		04DF978E1EC471E30093391E /* CustomizeTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CustomizeTableViewCell.xib; sourceTree = "<group>"; };
+		04DF97911EC483270093391E /* HeaderTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HeaderTableViewCell.h; sourceTree = "<group>"; };
+		04DF97921EC483270093391E /* HeaderTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HeaderTableViewCell.m; sourceTree = "<group>"; };
+		04DF97931EC483270093391E /* HeaderTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HeaderTableViewCell.xib; sourceTree = "<group>"; };
 		4433E326F897F798A195DB0B /* Pods-servicesTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-servicesTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-servicesTests/Pods-servicesTests.release.xcconfig"; sourceTree = "<group>"; };
 		4CE11ED6E9EEB6A9951E2664 /* Pods_servicesTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_servicesTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5E399AC06724C51B14A68D7A /* Pods-services.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-services.debug.xcconfig"; path = "Pods/Target Support Files/Pods-services/Pods-services.debug.xcconfig"; sourceTree = "<group>"; };
@@ -180,6 +196,10 @@
 		044BD9261EA5E15E002BB6E2 = {
 			isa = PBXGroup;
 			children = (
+				04C277691ED80E8E00C44BAD /* NSDictionary+JSON.m */,
+				04C2776A1ED80E8E00C44BAD /* NSDictionary+JSON.h */,
+				04ACC2E61ECED88600F75F3E /* ServiceProvider.h */,
+				04ACC2E71ECED88600F75F3E /* ServiceProvider.m */,
 				044BD9311EA5E15E002BB6E2 /* services */,
 				044BD94B1EA5E15E002BB6E2 /* servicesTests */,
 				044BD9561EA5E15E002BB6E2 /* servicesUITests */,
@@ -261,6 +281,12 @@
 				04164C641EC35272002C89F5 /* DemoCollectionViewCell.xib */,
 				04DF97861EC43E5D0093391E /* CustomizeViewController.h */,
 				04DF97871EC43E5D0093391E /* CustomizeViewController.m */,
+				04DF978C1EC471E30093391E /* CustomizeTableViewCell.h */,
+				04DF978D1EC471E30093391E /* CustomizeTableViewCell.m */,
+				04DF978E1EC471E30093391E /* CustomizeTableViewCell.xib */,
+				04DF97911EC483270093391E /* HeaderTableViewCell.h */,
+				04DF97921EC483270093391E /* HeaderTableViewCell.m */,
+				04DF97931EC483270093391E /* HeaderTableViewCell.xib */,
 			);
 			path = services;
 			sourceTree = "<group>";
@@ -401,7 +427,7 @@
 				TargetAttributes = {
 					044BD92E1EA5E15E002BB6E2 = {
 						CreatedOnToolsVersion = 8.2.1;
-						DevelopmentTeam = VY9CM6NY6X;
+						DevelopmentTeam = 4YK2H54H9H;
 						ProvisioningStyle = Automatic;
 					};
 					044BD9471EA5E15E002BB6E2 = {
@@ -445,9 +471,11 @@
 				04B952B61EAB4D0E009B7F50 /* SPTableViewCell.xib in Resources */,
 				04B952C61EACF5DD009B7F50 /* DetailsSecondTableViewCell.xib in Resources */,
 				04164C581EC301B8002C89F5 /* SelectSPTableViewCell.xib in Resources */,
+				04DF97901EC471E30093391E /* CustomizeTableViewCell.xib in Resources */,
 				04B952A91EA9E657009B7F50 /* KICamera.png in Resources */,
 				044BD9421EA5E15E002BB6E2 /* LaunchScreen.storyboard in Resources */,
 				04B952C11EACD122009B7F50 /* DetailFirstTableViewCell.xib in Resources */,
+				04DF97951EC483270093391E /* HeaderTableViewCell.xib in Resources */,
 				044BD93F1EA5E15E002BB6E2 /* Assets.xcassets in Resources */,
 				04B952AA1EA9E657009B7F50 /* KICamera@2x.png in Resources */,
 				048E06631EA8A81900AC1149 /* MenuTableViewCell.xib in Resources */,
@@ -620,6 +648,7 @@
 				044BD96A1EA74B40002BB6E2 /* SignInViewController.m in Sources */,
 				04B952AE1EAA33EF009B7F50 /* SPListViewController.m in Sources */,
 				044BD9731EA78ADC002BB6E2 /* ServicesCollectionViewCell.m in Sources */,
+				04DF978F1EC471E30093391E /* CustomizeTableViewCell.m in Sources */,
 				044BD96D1EA769F8002BB6E2 /* SignUpViewController.m in Sources */,
 				04D82CA81EBC6D7A00F9AE72 /* NotificationsViewController.m in Sources */,
 				04164C571EC301B8002C89F5 /* SelectSPTableViewCell.m in Sources */,
@@ -627,6 +656,7 @@
 				04B952CA1EACF722009B7F50 /* DetailThirdTableViewCell.m in Sources */,
 				04B952C51EACF5DD009B7F50 /* DetailsSecondTableViewCell.m in Sources */,
 				04D82CA21EBC6D4E00F9AE72 /* MyWarrantysViewController.m in Sources */,
+				04DF97941EC483270093391E /* HeaderTableViewCell.m in Sources */,
 				04D82CA51EBC6D6300F9AE72 /* OrderHistoryViewController.m in Sources */,
 				04B952B51EAB4D0E009B7F50 /* SPTableViewCell.m in Sources */,
 				04DF97881EC43E5D0093391E /* CustomizeViewController.m in Sources */,
@@ -636,7 +666,9 @@
 				048E065E1EA8A56100AC1149 /* MenuTableViewController.m in Sources */,
 				04B9528C1EA9D2DB009B7F50 /* BannerCollectionViewCell.m in Sources */,
 				04B952C01EACD122009B7F50 /* DetailFirstTableViewCell.m in Sources */,
+				04C2776B1ED80E8E00C44BAD /* NSDictionary+JSON.m in Sources */,
 				048E06621EA8A81900AC1149 /* MenuTableViewCell.m in Sources */,
+				04ACC2E81ECED88600F75F3E /* ServiceProvider.m in Sources */,
 				044BD9341EA5E15E002BB6E2 /* main.m in Sources */,
 				04B952B91EACC811009B7F50 /* SPDetailViewController.m in Sources */,
 				04B952AB1EA9E657009B7F50 /* KIImagePager.m in Sources */,
@@ -787,12 +819,15 @@
 			baseConfigurationReference = 5E399AC06724C51B14A68D7A /* Pods-services.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEFINES_MODULE = NO;
-				DEVELOPMENT_TEAM = VY9CM6NY6X;
+				DEVELOPMENT_TEAM = 4YK2H54H9H;
 				INFOPLIST_FILE = services/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = app.yellowsoft.services;
+				PRODUCT_BUNDLE_IDENTIFIER = com.usnap.usnapapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Debug;
 		};
@@ -801,12 +836,15 @@
 			baseConfigurationReference = B7463EB92515A0EFE65C509B /* Pods-services.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEFINES_MODULE = NO;
-				DEVELOPMENT_TEAM = VY9CM6NY6X;
+				DEVELOPMENT_TEAM = 4YK2H54H9H;
 				INFOPLIST_FILE = services/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = app.yellowsoft.services;
+				PRODUCT_BUNDLE_IDENTIFIER = com.usnap.usnapapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Release;
 		};

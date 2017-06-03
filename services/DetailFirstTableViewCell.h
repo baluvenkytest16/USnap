@@ -9,5 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface DetailFirstTableViewCell : UITableViewCell
+@property (strong, nonatomic) IBOutlet UILabel *service_name;
 
+@property (strong, nonatomic) IBOutlet UILabel *service_address;
 @end

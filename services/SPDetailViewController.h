@@ -7,7 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "ServiceProvider.h"
 
 @interface SPDetailViewController : UIViewController
+
+@property (weak,nonatomic) ServiceProvider *serviceProvider;
 
 @end

@@ -16,6 +16,7 @@
 #import "MenuTableViewController.h"
 #import "SVProgressHUD.h"
 #import <SDWebImage/UIImageView+WebCache.h>
+#import "SPListViewController.h"
 
 
 //@import LGSideMenuController;
@@ -26,6 +27,8 @@
     {
         NSMutableArray *imgList;
         NSMutableArray *namesList;
+        NSMutableArray *idList;
+
     }
 
 
@@ -63,6 +66,8 @@
     
     namesList=[NSMutableArray arrayWithObjects:@"PLUMBING",nil];
     imgList=[NSMutableArray arrayWithObjects:@"plumbing",nil];
+    idList=[NSMutableArray arrayWithObjects:@"plumbing",nil];
+
     
     
     
@@ -191,7 +196,9 @@
 
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath  {
     
-    [self goToListView: [namesList objectAtIndex:indexPath.row]];
+    //[self goToListView: [namesList objectAtIndex:indexPath.row]];
+    
+    [self goToListView:[namesList objectAtIndex:indexPath.row] withid:[idList objectAtIndex:indexPath.row]];
     
 }
 
@@ -255,12 +262,13 @@
 }
 
 
--(void)goToListView:(NSString *)title{
+-(void)goToListView:(NSString *)title withid:(NSString *)serviceId{
     
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
     
-    UIViewController *viewController =[storyboard instantiateViewControllerWithIdentifier:@"SPListViewController"];
+    SPListViewController *viewController =[storyboard instantiateViewControllerWithIdentifier:@"SPListViewController"];
     viewController.title = title;
+    viewController.serviceId = serviceId;
     
     [self.navigationController pushViewController:viewController animated:YES];
     
@@ -273,8 +281,12 @@
     
     [namesList removeAllObjects];
     [imgList removeAllObjects];
+    [idList removeAllObjects];
+    
     [namesList addObject:@""];
     [imgList addObject:@""];
+    [idList addObject:@""];
+
     
     
     [self.homeTable reloadData];
@@ -313,8 +325,11 @@
         }
         else{
             
+
             id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
             
+            NSLog(@"data:%@",json);
+
             NSLog(@"%@",[json objectForKey:@"error_code"]);
             
             [namesList removeAllObjects];
@@ -335,6 +350,7 @@
                 for (NSDictionary *whateverNameYouWant in services) {
                     
                     [namesList addObject:[whateverNameYouWant objectForKey:@"name"]];
+                    [idList addObject:[whateverNameYouWant objectForKey:@"_id"]];
                     NSString *temp = [whateverNameYouWant objectForKey:@"serviceLogo"];
                     NSString *image_utl = @"https://u-snap.herokuapp.com/images/icons/";
                     NSLog(@"%@",[image_utl stringByAppendingString:temp]);

@@ -49,11 +49,14 @@
 
     if(indexPath.row==0){
         DetailFirstTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DetailFirstTableViewCell"];
-        
+        cell.service_name.text = self.serviceProvider.service_name;
+        cell.service_address.text = self.serviceProvider.service_address;
+
         return cell;
         
     }else if(indexPath.row==1){
         DetailsSecondTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DetailsSecondTableViewCell"];
+        cell.service_description.text = self.serviceProvider.service_description;
         return cell;
 
     }else{

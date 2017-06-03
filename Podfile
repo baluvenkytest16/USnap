@@ -16,6 +16,11 @@ target 'services' do
   pod 'SVProgressHUD'
   pod 'SDWebImage', '~>3.8'
   pod 'BEMCheckBox'
+  pod 'GooglePlaces'
+  pod 'GooglePlacePicker'
+  pod 'GoogleMaps'
+  pod 'AFNetworking', '~> 3.0'
+
 
 
   
