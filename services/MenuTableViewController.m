@@ -10,6 +10,8 @@
 #import "MenuTableViewCell.h"
 #import "UIViewController+LGSideMenuController.h"
 #import "SVProgressHUD.h"
+#import "AppDelegate.h"
+#import "MyWarrantysViewController.h"
 
 
 
@@ -57,7 +59,6 @@
         _user_name_txt.alpha=1;
         _user_phone_txt.alpha=1;
         _user_image.alpha=1;
-        
         _user_name_txt.text = [defaults objectForKey:@"username"];
         _user_phone_txt.text = [defaults objectForKey:@"userphone"];
         
@@ -65,10 +66,37 @@
         _user_name_txt.alpha=0;
         _user_phone_txt.alpha=0;
         _user_image.alpha=0;
-        
-        
+    
     }
+}
 
+-(void)updateMenu{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    if([defaults objectForKey:@"username"]!=nil  && ![[defaults objectForKey:@"username"] isEqualToString:@""]){
+        
+        if([[defaults valueForKey:@"role"] isEqualToString:@"user"]){
+            
+            _become_sp.text = @"Become a service provider";
+            tableData = [NSArray arrayWithObjects:@"My Favorites", @"Order History", @"Notifications", @"Refer a Friend", @"Settings",@"Service Request", nil];
+            
+            tableimages = [NSArray arrayWithObjects:@"my-fav", @"order-history", @"notifications", @"refer-friend", @"settings",@"service_request", nil];
+            
+            
+            [self.tableView reloadData];
+            
+            
+        }else{
+            _become_sp.text = @"Update service details";
+            tableData = [NSArray arrayWithObjects:@"My Favorites", @"Order History", @"Notifications", @"Refer a Friend", @"Settings",@"Service Request",@"Available jobs", nil];
+            
+            tableimages = [NSArray arrayWithObjects:@"my-fav", @"order-history", @"notifications", @"refer-friend", @"settings",@"service_request",@"service_request", nil];
+            
+            
+            [self.tableView reloadData];
+            
+        }
+
+    }
 }
 
 - (void)viewDidLoad {
@@ -91,15 +119,9 @@
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     self.tableView.separatorColor = [UIColor clearColor];
-    self.tableView.scrollEnabled = NO;
+    self.tableView.scrollEnabled = YES;
     
-    
-    tableData = [NSArray arrayWithObjects:@"My Warrantys", @"Order History", @"Notifications", @"Refer a Friend", @"Settings", nil];
-    
-    tableimages = [NSArray arrayWithObjects:@"my-warranty", @"order-history", @"notifications", @"refer-friend", @"settings", nil];
-    
-    
-    [self.tableView reloadData];
+    [self updateMenu];
     
     _become_sp.userInteractionEnabled = YES;
     UITapGestureRecognizer *tapGesture =
@@ -117,7 +139,22 @@
         
         _user_name_txt.text = [defaults objectForKey:@"username"];
         _user_phone_txt.text = [defaults objectForKey:@"userphone"];
+        
+        NSLog(@"role:%@",[defaults valueForKey:@"role"]);
+        if([[defaults valueForKey:@"role"] isEqualToString:@"user"]){
+         
+         _become_sp.text = @"Become a service provider";
+            _become_sp.userInteractionEnabled = YES;
+            _become_sp.alpha=1;
 
+            
+        }else{
+            _become_sp.text = @"Update service details";
+            _become_sp.userInteractionEnabled = NO;
+            _become_sp.alpha=0;
+
+
+        }
     }else{
         _user_name_txt.alpha=0;
         _user_phone_txt.alpha=0;
@@ -126,8 +163,46 @@
         
     }
     
+    [[NSNotificationCenter defaultCenter]
+     addObserver:self selector:@selector(profilePicSelected:) name:@"profilePic" object:nil];
+    //serviceregistered
+    
+    [[NSNotificationCenter defaultCenter]
+     addObserver:self selector:@selector(serviceUpdated:) name:@"serviceregistered" object:nil];
+    
+    
+    self.user_image.layer.cornerRadius = self.user_image.frame.size.width/2;
+    self.user_image.layer.borderWidth = 1.0f;
+    self.user_image.layer.borderColor = [UIColor colorWithRed:38.0/255.0 green:174.0/255.0 blue:238.0/255.0 alpha:1.0].CGColor;
+    self.user_image.clipsToBounds = YES;
+    [self getImage];
 
 }
+
+
+-(void)profilePicSelected:(NSNotification *) notification
+{
+    
+    NSDictionary *dict = notification.userInfo;
+    UIImage *message = [dict valueForKey:@"image"];
+    
+    if (message != nil) {
+        
+        self.user_image.image=message;
+    }
+    
+    
+}
+
+-(void)serviceUpdated:(NSNotification *) notification{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setObject:@"provider" forKey:@"role"];
+    [defaults synchronize];    
+    _become_sp.text = @"Update service details";
+    _become_sp.userInteractionEnabled = NO;
+    _become_sp.alpha=0;
+}
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -170,7 +245,8 @@
     {
         [tableView deselectRowAtIndexPath:indexPath animated:YES];
         [self.sideMenuController hideLeftViewAnimated:YES completionHandler:nil];
-        if(indexPath.row == 0){
+        
+        if(indexPath.row == 5){
             
             
             NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
@@ -181,8 +257,43 @@
                 
                 UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
                 
-                UIViewController *viewController =[storyboard instantiateViewControllerWithIdentifier:@"MyWarrantysViewController"];
-                viewController.title = @"My Warrantys";
+                MyWarrantysViewController *viewController =[storyboard instantiateViewControllerWithIdentifier:@"MyWarrantysViewController"];
+                
+                //viewController.title = @"My Warrantys";
+                viewController.user_type=@"user";
+
+                
+                UINavigationController *navigationController = (UINavigationController *)self.sideMenuController.rootViewController;
+                
+                [navigationController pushViewController:viewController animated:YES];
+                
+                
+            }else{
+                
+                UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+                
+                UIViewController *viewController =[storyboard instantiateViewControllerWithIdentifier:@"LoginViewController"];
+                
+                UINavigationController *navigationController = (UINavigationController *)self.sideMenuController.rootViewController;
+                
+                [navigationController pushViewController:viewController animated:YES];
+                
+            }
+
+        }
+        else if(indexPath.row == 0){
+            
+            
+            NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+            
+            // check if user is alraidy Login
+            if([defaults objectForKey:@"username"]!=nil  && ![[defaults objectForKey:@"username"] isEqualToString:@""]){
+                // Redirected to Dashboard.
+                
+                UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+                
+                UIViewController *viewController =[storyboard instantiateViewControllerWithIdentifier:@"FavViewController"];
+                viewController.title = @"My Favorites";
                 
                 UINavigationController *navigationController = (UINavigationController *)self.sideMenuController.rootViewController;
                 
@@ -199,8 +310,9 @@
                 [navigationController pushViewController:viewController animated:YES];
                 
             }
-
+            
         }
+
         else if(indexPath.row == 1){
             NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
             
@@ -298,7 +410,38 @@
                 [navigationController pushViewController:viewController animated:YES];
 
             }
+        }else if (indexPath.row==6){
+            
+            NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+            
+            // check if user is alraidy Login
+            if([defaults objectForKey:@"username"]!=nil  && ![[defaults objectForKey:@"username"] isEqualToString:@""]){
+                // Redirected to Dashboard.
+                
+                [self.sideMenuController hideLeftViewAnimated:YES completionHandler:nil];
+                
+                
+                UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+                
+                MyWarrantysViewController *viewController =[storyboard instantiateViewControllerWithIdentifier:@"MyWarrantysViewController"];
+                viewController.user_type=@"sp";
+                UINavigationController *navigationController = (UINavigationController *)self.sideMenuController.rootViewController;
+                
+                [navigationController pushViewController:viewController animated:YES];
+
+                
+            }else{
+                UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+                
+                UIViewController *viewController =[storyboard instantiateViewControllerWithIdentifier:@"LoginViewController"];
+                
+                UINavigationController *navigationController = (UINavigationController *)self.sideMenuController.rootViewController;
+                
+                [navigationController pushViewController:viewController animated:YES];
+                
+            }
         }
+
         else{
             
     
@@ -417,17 +560,38 @@
 }
 
 -(void)gotospsignup{
-    [self.sideMenuController hideLeftViewAnimated:YES completionHandler:nil];
+    
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    if([[defaults valueForKey:@"role"] isEqualToString:@"user"]){
+        
+        [self.sideMenuController hideLeftViewAnimated:YES completionHandler:nil];
+        
+        
+        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+        
+        UIViewController *viewController =[storyboard instantiateViewControllerWithIdentifier:@"SPSignUpViewController"];
+        viewController.title = @"Select Service";
+        UINavigationController *navigationController = (UINavigationController *)self.sideMenuController.rootViewController;
+        
+        [navigationController pushViewController:viewController animated:YES];
+
+    }else{
+        
+        [self.sideMenuController hideLeftViewAnimated:YES completionHandler:nil];
+        
+        
+        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+        
+        MyWarrantysViewController *viewController =[storyboard instantiateViewControllerWithIdentifier:@"MyWarrantysViewController"];
+        viewController.user_type=@"sp";
+        UINavigationController *navigationController = (UINavigationController *)self.sideMenuController.rootViewController;
+        
+        [navigationController pushViewController:viewController animated:YES];
+        
+    }
 
     
-    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
     
-    UIViewController *viewController =[storyboard instantiateViewControllerWithIdentifier:@"SPSignUpViewController"];
-    viewController.title = @"Select Service";
-    UINavigationController *navigationController = (UINavigationController *)self.sideMenuController.rootViewController;
-    
-    [navigationController pushViewController:viewController animated:YES];
-
     
 }
 
@@ -457,6 +621,67 @@
     }
 }
 
+
+-(void)getImage{
+    
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    
+    
+    
+    NSString *post = [NSString stringWithFormat:
+                      @"sessionId=%@",
+                      [defaults objectForKey:@"sessionid"]];
+    
+    NSData *postData = [post dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
+    
+    NSLog(@"%@",post);
+    
+    NSString *postLength = [NSString stringWithFormat:@"%lu", (unsigned long)[postData length]];
+    
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+    [request setURL:[NSURL URLWithString:@"https://u-snap.herokuapp.com/api/users/getProfilePicture"]];
+    
+    [request setHTTPMethod:@"POST"];
+    [request setValue:postLength forHTTPHeaderField:@"Content-Length"];
+    [request setHTTPBody:postData];
+    
+    
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+    [[session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        
+        NSLog(@"eror:%@",error);
+        NSLog(@"response:%@",response.description);
+        
+        if(data == nil){
+           // [self showAlert:error.localizedDescription withtittle:@"Error"];
+            NSLog(@"data:%@",@"nodata");
+
+        }
+        else{
+            
+            //NSLog(@"data:%@",data);
+            
+            
+            AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+
+            UIImage *image = [UIImage imageWithData:data];
+            appDelegate.image = image;
+            
+            
+            if(image!=nil){
+                [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
+                    self.user_image.image = image;
+                }];
+            }
+        }
+        
+        
+    }] resume];
+    
+    
+    
+    
+}
 
 
 

@@ -189,7 +189,7 @@
     SelectSPTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"SelectSPTableViewCell" forIndexPath:indexPath];
     [cell.spName setText:[namesList objectAtIndex:indexPath.row]] ;
     cell.main_checkbox.userInteractionEnabled = false;
-    cell.main_checkbox.boxType = BEMBoxTypeSquare;
+    cell.main_checkbox.boxType = BEMBoxTypeCircle;
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     return cell;
     
@@ -476,7 +476,17 @@
         
         UIAlertController *alertController = [UIAlertController alertControllerWithTitle:tittle message:message preferredStyle:UIAlertControllerStyleAlert];
         
-        UIAlertAction* ok = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
+        UIAlertAction* ok = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
+                             {
+                                 if([tittle isEqualToString:@"Success"]){
+                                     
+                                     [[NSNotificationCenter defaultCenter] postNotificationName:@"serviceregistered" object:nil userInfo:nil];
+                                     
+                                 }
+                                 
+                                 
+                                 
+                             }];
         [alertController addAction:ok];
         
         [self presentViewController:alertController animated:YES completion:nil];
@@ -552,7 +562,6 @@
 
     
 }
-
 /*
 #pragma mark - Navigation
 

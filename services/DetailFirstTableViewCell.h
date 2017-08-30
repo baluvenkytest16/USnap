@@ -10,6 +10,8 @@
 
 @interface DetailFirstTableViewCell : UITableViewCell
 @property (strong, nonatomic) IBOutlet UILabel *service_name;
+@property (strong, nonatomic) IBOutlet UIImageView *sp_image;
 
+@property (strong, nonatomic) IBOutlet UIImageView *service_image;
 @property (strong, nonatomic) IBOutlet UILabel *service_address;
 @end

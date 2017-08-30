@@ -11,6 +11,15 @@
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
+@property (strong, nonatomic) UIImage *image;
+@property (strong, nonatomic) NSString *device_id;
+@property (strong, nonatomic) NSString *device_type;
+@property (strong, nonatomic) NSString *device_name;
+@property (strong, nonatomic) NSMutableDictionary *banner_images;
+
+
+
+
 
 
 @end

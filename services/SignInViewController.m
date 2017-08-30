@@ -10,22 +10,31 @@
 #import "SVProgressHUD.h"
 #import "HomeViewController.h"
 #import "MenuTableViewController.h"
+#import "AppDelegate.h"
+#import "PAPasscodeViewController.h"
 
 @import LGSideMenuController;
 
 
 
 @interface SignInViewController ()
+{
+    NSString *userIdsave;
+}
+
     @property (weak, nonatomic) IBOutlet UITextField *emailtf;
     @property (weak, nonatomic) IBOutlet UIButton *logbtn;
     @property (weak, nonatomic) IBOutlet UIButton *fb_btn;
     @property (weak, nonatomic) IBOutlet UILabel *signup_hint;
-@property (weak, nonatomic) IBOutlet UITextField *password_txt;
+    @property (weak, nonatomic) IBOutlet UITextField *password_txt;
+
 - (IBAction)login_btn_action:(id)sender;
     
 @end
 
 @implementation SignInViewController
+
+
 
 
 - (void)viewDidLoad {
@@ -197,7 +206,6 @@
     
     [self presentViewController:[[UINavigationController alloc] initWithRootViewController:viewController] animated:YES completion:nil];
     
-    
 }
 
 -(void)showAlert:(NSString *)message withtittle:(NSString *)tittle{
@@ -234,12 +242,17 @@
 
 -(void)callapi{
     
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+
     
     
     NSString *post = [NSString stringWithFormat:
-                      @"email=%@&password=%@",
+                      @"email=%@&password=%@&deviceId=%@&deviceType=%@&deviceName=%@",
                       self.emailtf.text,
-                      self.password_txt.text];
+                      self.password_txt.text,
+                      appDelegate.device_id,
+                      appDelegate.device_type,
+                      appDelegate.device_type];
     
     NSData *postData = [post dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
     
@@ -254,7 +267,7 @@
     NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
     [[session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         [SVProgressHUD dismiss];
-        
+        NSLog(@"post:%@",post);
         NSLog(@"eror:%@",error);
         NSLog(@"response:%@",response.description);
         
@@ -267,10 +280,18 @@
          
             id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
             
-            NSLog(@"%@",[json objectForKey:@"error_code"]);
+            NSLog(@"%@",json);
+
+            NSLog(@"error_code %@",[json objectForKey:@"error_code"]);
             
-            if([[json objectForKey:@"error_code"] isEqualToString:@"0"]){
+            if([json valueForKey:@"error_code"] == nil){
+                [self showAlert:[json objectForKey:@"message"] withtittle:@"Error"];
+
+            }
+
+            else if([[json valueForKey:@"error_code"] integerValue] == 0){
                 
+            
                 id user_json = [json objectForKey:@"userProfile"];
                 
                 NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
@@ -280,16 +301,24 @@
 
                 [defaults setObject:[user_json objectForKey:@"userId"] forKey:@"userid"];
                 [defaults setObject:[json objectForKey:@"sessionId"] forKey:@"sessionid"];
+                [defaults setObject:[user_json objectForKey:@"role"] forKey:@"role"];
+                
 
                 
                 [defaults synchronize];
                 
-                
-                
-                
+            
                 
                 [self showAlert:[json objectForKey:@"message"] withtittle:@"Success"];
-
+            }
+            else if([[json valueForKey:@"error_code"] integerValue] == 2){
+                
+                    [self addDevice:[json objectForKey:@"userId"]];
+                
+            }else if([[json valueForKey:@"error_code"] integerValue] == 3){
+                
+                
+                    [self showAlertTwoFactor:[json objectForKey:@"message"] withtittle:@"Verify" withcode:@"" withid:[json objectForKey:@"userId"]];
             }
             else{
                 [self showAlert:[json objectForKey:@"message"] withtittle:@"Error"];
@@ -302,6 +331,68 @@
     
     
     
+    
+}
+
+
+-(void)addDevice:(NSString *)userId{
+    
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    
+    
+    
+    NSString *post = [NSString stringWithFormat:
+                      @"userId=%@&deviceId=%@&deviceType=%@&deviceName=%@",
+                      userId,
+                      appDelegate.device_id,
+                      appDelegate.device_type,
+                      appDelegate.device_name];
+    
+    NSData *postData = [post dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
+    
+    NSString *postLength = [NSString stringWithFormat:@"%lu", (unsigned long)[postData length]];
+    
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+    [request setURL:[NSURL URLWithString:@"https://u-snap.herokuapp.com/api/auth/addDevice"]];
+    [request setHTTPMethod:@"POST"];
+    [request setValue:postLength forHTTPHeaderField:@"Content-Length"];
+    [request setHTTPBody:postData];
+    
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+    [[session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        [SVProgressHUD dismiss];
+        
+        NSLog(@"eror:%@",error);
+        NSLog(@"response:%@",response.description);
+        
+        
+        
+        if(data == nil){
+            [self showAlert:error.localizedDescription withtittle:@"Error"];
+        }
+        else{
+            
+            id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+            
+            NSLog(@"%@",json);
+            
+            if([[json objectForKey:@"error_code"]   isEqualToString: @"0"]){
+                
+                
+                //[self showAlert:[json objectForKey:@"message"] withtittle:@"Success"];
+                
+                [self showAlertTwoFactor:[json objectForKey:@"message"] withtittle:@"Verify" withcode:[json valueForKey:@"twoFactorAuthCode"] withid:userId];
+                
+            }
+            else{
+                [self showAlert:[json objectForKey:@"message"] withtittle:@"Error"];
+            }
+            
+        }
+        
+    }] resume];
+    [SVProgressHUD show];
+
     
 }
 
@@ -319,4 +410,138 @@
 - (IBAction)login_btn_action:(id)sender {
     [self validateform];
 }
+
+
+
+
+
+-(void)showAlertTwoFactor:(NSString *)message withtittle:(NSString *)tittle
+
+                 withcode:(NSString *)code withid:(NSString *)userId{
+    
+    userIdsave = userId;
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        
+        
+//        if ([UIAlertController class])
+//        {
+//            
+//            UIAlertController *alertController = [UIAlertController alertControllerWithTitle:tittle message:message preferredStyle:UIAlertControllerStyleAlert];
+//            
+//            UIAlertAction* ok = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * action)
+//                                 {
+////                                     if([tittle isEqualToString:@"Success"])
+////                                         [self setupHome:@"nologin"];
+////
+//                                     NSLog(@"code %@", alertController.textFields.firstObject.text);
+//                                     
+//                                     [self validateDevice:userId withcode:alertController.textFields.firstObject.text];
+//                                     
+//                                 }];
+//            
+//            [alertController addAction:ok];
+//            
+//            
+//            [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+//                textField.placeholder = @"Enter Authentication code:";
+//                textField.secureTextEntry = YES;
+//                textField.text = [NSString stringWithFormat:@"%@",code];
+//            }];
+//            
+//            [self presentViewController:alertController animated:YES completion:nil];
+//            
+//        }
+//        else{
+//            //[self setupHome:@"nologin"];
+//        }
+//
+        
+        
+        PAPasscodeViewController *passcodeViewController = [[PAPasscodeViewController alloc] initForAction:PasscodeActionEnter];
+        passcodeViewController.delegate = self;
+        passcodeViewController.userID = userIdsave;
+        passcodeViewController.enterPrompt = message;
+        [self presentViewController:[[UINavigationController alloc] initWithRootViewController:passcodeViewController] animated:YES completion:nil];
+    });
+        
+        
+        
+}
+
+- (void)PAPasscodeViewControllerDidCancel:(PAPasscodeViewController *)controller {
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)PAPasscodeViewControllerDidEnterPasscode:(PAPasscodeViewController *)controller {
+    [self dismissViewControllerAnimated:YES completion:nil];
+
+            [self callapi];
+}
+
+-(void)validateDevice:(NSString *)userId withcode:(NSString *)code{
+    
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    
+    
+    
+    NSString *post = [NSString stringWithFormat:
+                      @"userId=%@&deviceId=%@&twoFactorAuthCode=%@",
+                      userId,
+                      appDelegate.device_id,
+                      code];
+    
+    NSLog(@"eror:%@",post);
+
+    
+    NSData *postData = [post dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
+    
+    NSString *postLength = [NSString stringWithFormat:@"%lu", (unsigned long)[postData length]];
+    
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+    [request setURL:[NSURL URLWithString:@"https://u-snap.herokuapp.com/api/auth/validateDevice"]];
+    [request setHTTPMethod:@"POST"];
+    [request setValue:postLength forHTTPHeaderField:@"Content-Length"];
+    [request setHTTPBody:postData];
+    
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+    [[session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        [SVProgressHUD dismiss];
+        
+        NSLog(@"eror:%@",error);
+        NSLog(@"response:%@",response.description);
+        
+        
+        
+        if(data == nil){
+            [self showAlert:error.localizedDescription withtittle:@"Error"];
+        }
+        else{
+            
+            id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+            
+            NSLog(@"%@",json);
+            
+            if([[json objectForKey:@"error_code"]   isEqualToString: @"0"]){
+                
+                [self callapi];
+                
+            }
+            else{
+                
+            [self showAlert:[json objectForKey:@"message"] withtittle:@"Error"];
+            
+            }
+        }
+        
+    }] resume];
+    [SVProgressHUD show];
+    
+    
+}
+
+
+
+
+
 @end

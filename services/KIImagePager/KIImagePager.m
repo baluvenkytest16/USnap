@@ -309,9 +309,9 @@
     _pageControl.center = CGPointMake(_scrollView.frame.size.width / 2, _scrollView.frame.size.height - 12.0);
     _pageControl.userInteractionEnabled = NO;
     
-    _pageControl.currentPageIndicatorTintColor = [UIColor orangeColor];
+    _pageControl.currentPageIndicatorTintColor = [UIColor whiteColor];
     
-    _pageControl. pageIndicatorTintColor= [[UIColor orangeColor] colorWithAlphaComponent:0.5f];
+    _pageControl. pageIndicatorTintColor= [[UIColor whiteColor] colorWithAlphaComponent:0.5f];
     
     if(!_indicatorDisabled) [self addSubview:_pageControl];
 }

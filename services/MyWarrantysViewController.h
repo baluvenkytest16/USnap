@@ -10,4 +10,6 @@
 
 @interface MyWarrantysViewController : UIViewController
 
+@property (weak, nonatomic) NSString *user_type;
+
 @end

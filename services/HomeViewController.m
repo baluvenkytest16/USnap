@@ -104,6 +104,9 @@
 //    }
     
     
+    
+    
+    
     [self callapi];
             self.login_to_see.alpha=0;
 
@@ -271,9 +274,6 @@
     viewController.serviceId = serviceId;
     
     [self.navigationController pushViewController:viewController animated:YES];
-    
-
-    
 }
 
 
@@ -352,11 +352,15 @@
                     [namesList addObject:[whateverNameYouWant objectForKey:@"name"]];
                     [idList addObject:[whateverNameYouWant objectForKey:@"_id"]];
                     NSString *temp = [whateverNameYouWant objectForKey:@"serviceLogo"];
+                    NSString *temp_dtl = [whateverNameYouWant objectForKey:@"serviceDtlsImage"];
+                    
                     NSString *image_utl = @"https://u-snap.herokuapp.com/images/icons/";
-                    NSLog(@"%@",[image_utl stringByAppendingString:temp]);
+                    
+                    NSLog(@"%@",[image_utl stringByAppendingString:temp_dtl]);
                     
                     [imgList addObject:[image_utl stringByAppendingString:temp]];
-
+                    
+                    [appDelegate.banner_images setObject:[image_utl stringByAppendingString:temp_dtl] forKey:[whateverNameYouWant objectForKey:@"_id"]];
                     
                     
                 }
@@ -380,7 +384,7 @@
     [SVProgressHUD show];
     
     
-    
+
     
 }
 
@@ -423,5 +427,6 @@
     [self.navigationController pushViewController:rootViewController animated:YES];
 
 }
+
 
 @end

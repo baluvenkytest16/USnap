@@ -12,6 +12,7 @@
 #import <GooglePlaces/GooglePlaces.h>
 #import <GooglePlacePicker/GooglePlacePicker.h>
 #import "AFNetworking.h"
+#import "AppDelegate.h"
 
 
 
@@ -29,11 +30,17 @@
 - (IBAction)work_adr_btn:(id)sender;
 @property (strong, nonatomic) IBOutlet UILabel *home_adr_label;
 @property (strong, nonatomic) IBOutlet UILabel *work_adr_label;
+- (IBAction)changeImage:(id)sender;
+@property (strong, nonatomic) IBOutlet UIView *update_sp;
 
+@property (strong, nonatomic) IBOutlet UIImageView *edit_profile_img;
+@property (strong, nonatomic) IBOutlet UILabel *devices_list_btn;
 @end
 
 @implementation SettingsViewController{
     GMSPlacePicker *placePicker;
+    NSString *home_addressid;
+    NSString *work_addressid;
 }
 
 
@@ -60,11 +67,59 @@
                                             action:@selector(labelTap)];
     [_logout_btn addGestureRecognizer:tapGesture];
     
-    [GMSPlacesClient provideAPIKey:@"AIzaSyBvPYrrSZB4IpXt5gJpBqtG_pcOkEp406M"];
-    [GMSServices provideAPIKey:@"AIzaSyBvPYrrSZB4IpXt5gJpBqtG_pcOkEp406M"];
     
     
-    [self callapi];
+    _devices_list_btn.userInteractionEnabled = YES;
+    
+    
+    UITapGestureRecognizer *tapGestures =
+    [[UITapGestureRecognizer alloc] initWithTarget:self
+                                            action:@selector(gotodevicesPage)];
+    [_devices_list_btn addGestureRecognizer:tapGestures];
+    
+    
+    
+    
+   // [GMSPlacesClient provideAPIKey:@"AIzaSyBvPYrrSZB4IpXt5gJpBqtG_pcOkEp406M"];
+  //  [GMSServices provideAPIKey:@"AIzaSyBvPYrrSZB4IpXt5gJpBqtG_pcOkEp406M"];
+    
+    self.user_pic.layer.cornerRadius = self.user_pic.frame.size.width/2;
+    self.user_pic.layer.borderWidth = 3.0f;
+    self.user_pic.layer.borderColor = [UIColor colorWithRed:38.0/255.0 green:174.0/255.0 blue:238.0/255.0 alpha:1.0].CGColor;
+    
+    //38,174,238
+    
+    self.edit_profile_img.layer.cornerRadius = self.edit_profile_img.layer.frame.size.width/2;
+    home_addressid=@"";
+    work_addressid=@"";
+    
+    
+    [self callapi:true];
+    
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+
+    if(appDelegate.image){
+        self.user_pic.image = appDelegate.image;
+    }else{
+        [self getImage];
+    }
+    
+    
+    
+    if([defaults objectForKey:@"username"]!=nil  && ![[defaults objectForKey:@"username"] isEqualToString:@""]){
+        
+        if([[defaults valueForKey:@"role"] isEqualToString:@"user"]){
+            self.update_sp.alpha=0;
+        }else{
+            self.update_sp.alpha=1;
+        }
+        
+    }
+
+    
+    
+    
+    
     
 }
 
@@ -73,6 +128,22 @@
     [self goback];
     
 }
+
+
+-(void)gotodevicesPage{
+    
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    
+    UIViewController *viewController =[storyboard instantiateViewControllerWithIdentifier:@"DevicesViewController"];
+    viewController.title = @"Devices List";
+    
+    [self.navigationController pushViewController:viewController animated:YES];
+    
+    
+    
+}
+
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -92,7 +163,7 @@
 
 
 
--(void)callapi{
+-(void)callapi:(Boolean *)show_progress{
     
     
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
@@ -117,10 +188,14 @@
     
     NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
     [[session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        
+        if(show_progress)
         [SVProgressHUD dismiss];
         
         NSLog(@"eror:%@",error);
         NSLog(@"response:%@",response.description);
+        
+        
         
         
         
@@ -145,7 +220,6 @@
                     
                     if( [[address objectForKey:@"addressType"] isEqualToString:@"Home"]){
                         
-                        NSLog(@"%@",[address objectForKey:@"address1"]);
                         
                         
                         [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
@@ -154,6 +228,9 @@
                             NSLog(@"Main Thread Code");
                             _home_adr_label.text = [NSString stringWithFormat:@"%@",[address objectForKey:@"address1"]];
                             
+                            home_addressid = [NSString stringWithFormat:@"%@",[address objectForKey:@"_id"]];
+                            NSLog(@"home address %@",home_addressid);
+
                             
                         }];
 
@@ -167,6 +244,10 @@
                             NSLog(@"Main Thread Code");
                             _work_adr_label.text = [NSString stringWithFormat:@"%@",[address objectForKey:@"address1"]];
                             
+                            work_addressid = [NSString stringWithFormat:@"%@",[address objectForKey:@"_id"]];
+                            
+                            NSLog(@"work address %@",work_addressid);
+
                             
                         }];
                         
@@ -184,6 +265,8 @@
         }
         
     }] resume];
+    
+    if(show_progress)
     [SVProgressHUD show];
     
     
@@ -277,12 +360,35 @@
                 @"zipCode":[self getPincode:place],
                 @"timeZone":@"IST",
                 @"phone":@"phone",
-                @"latitude":[self getLatitude:place.name],
-                @"longitude":[self getLongitude:place.name],
+                @"latitude":[NSString stringWithFormat:@"%f",place.coordinate.latitude],
+                @"longitude":[NSString stringWithFormat:@"%f",place.coordinate.longitude],
                 @"address1":[self getAddressLine:place]
                             };
             
-            [self updateAddress:parameters];
+            NSDictionary *parameters_up = @{
+                                         @"sessionId": [defaults objectForKey:@"sessionid"],
+                                         @"addressType":@"Home",
+                                         @"city":[self getCity:place],
+                                         @"state":[self getState:place],
+                                         @"zipCode":[self getPincode:place],
+                                         @"timeZone":@"IST",
+                                         @"phone":@"phone",
+                                         @"latitude":[NSString stringWithFormat:@"%f",place.coordinate.latitude],
+                                         @"longitude":[NSString stringWithFormat:@"%f",place.coordinate.longitude],
+                                         @"address1":[self getAddressLine:place],
+                                         @"addressId":home_addressid
+
+                                         };
+
+            
+            
+            if(![home_addressid isEqualToString:@""]){
+                [self updateAddress:parameters_up];
+            }else{
+                [self updateAddress:parameters];
+
+            }
+            
             
 
 
@@ -329,12 +435,35 @@
                                          @"zipCode":[self getPincode:place],
                                          @"timeZone":@"IST",
                                          @"phone":@"phone",
-                                         @"latitude":[self getLatitude:place.name],
-                                         @"longitude":[self getLongitude:place.name],
+                                         @"latitude":[NSString stringWithFormat:@"%f",place.coordinate.latitude],
+                                         @"longitude":[NSString stringWithFormat:@"%f",place.coordinate.longitude],
                                          @"address1":[self getAddressLine:place]
                                          };
             
-            [self updateAddress:parameters];
+            NSDictionary *parameters_up = @{
+                                         
+                                         @"sessionId": [defaults objectForKey:@"sessionid"],
+                                         @"addressType":@"Work",
+                                         @"city":[self getCity:place],
+                                         @"state":[self getState:place],
+                                         @"zipCode":[self getPincode:place],
+                                         @"timeZone":@"IST",
+                                         @"phone":@"phone",
+                                         @"latitude":[NSString stringWithFormat:@"%f",place.coordinate.latitude],
+                                         @"longitude":[NSString stringWithFormat:@"%f",place.coordinate.longitude],
+                                         @"address1":[self getAddressLine:place],
+                                         @"addressId":work_addressid
+
+                                         };
+
+            
+            if(![work_addressid isEqualToString:@""]){
+                [self updateAddress:parameters_up];
+            }else{
+                [self updateAddress:parameters];
+
+            }
+            
 
 
             
@@ -356,12 +485,22 @@
     
   //  NSURL *URL = [NSURL URLWithString:@"https://u-snap.herokuapp.com/api/providers/addAddress"];
     
-    NSString *URLString = @"https://u-snap.herokuapp.com/api/users/addAddress";
+    NSString *URLString = @"";
     
+        if(![[info objectForKey:@"addressId"] isEqualToString:@""])
+            URLString = @"https://u-snap.herokuapp.com/api/users/updateAddress";
+        else
+            URLString = @"https://u-snap.herokuapp.com/api/users/addAddress";
+
     
     //   [[AFJSONRequestSerializer serializer] requestWithMethod:@"POST" URLString:URLString parameters:parameters error:nil];
     
     NSURLRequest *request = [[AFJSONRequestSerializer serializer] requestWithMethod:@"POST" URLString:URLString parameters:info error:nil];
+    
+    NSLog(@"parameters %@ ",info);
+    NSLog(@"request %@ ",request);
+
+
     
     NSURLSessionDataTask *dataTask = [manager dataTaskWithRequest:request completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
         [SVProgressHUD dismiss];
@@ -376,6 +515,8 @@
             }
             else{
                 [self showAlert:[responseObject objectForKey:@"message"] withtittle:@"Success"];
+                
+                [self callapi:false];
             }
             
             
@@ -488,10 +629,250 @@
     
     if(place.formattedAddress.length!=0)
         return place.formattedAddress;
-    else if(place.name.length!=0)
-        return place.name;
     else
-        return @"";
+        return [NSString stringWithFormat:@"%@,%@",[self getLatitude:[NSString stringWithFormat:@"%f",place.coordinate.latitude]],[self getLongitude:[NSString stringWithFormat:@"%f",place.coordinate.longitude]]];
+    
+}
+
+-(void)selectImage{
+    
+    UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
+    imagePickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+    imagePickerController.delegate = self;
+    imagePickerController.allowsEditing = YES;
+    [self presentViewController:imagePickerController animated:YES completion:nil];
+}
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+{
+    //You can retrieve the actual UIImage
+    UIImage *image = [info valueForKey:UIImagePickerControllerEditedImage];
+    
+    //Or you can get the image url from AssetsLibrary
+    NSURL *path = [info valueForKey:UIImagePickerControllerReferenceURL];
+    self.user_pic.contentMode = UIViewContentModeScaleAspectFill;
+    self.user_pic.image = image;
+    
+    NSDictionary *dict = [NSDictionary dictionaryWithObject:image forKey:@"image"];
+
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"profilePic" object:nil userInfo:dict];
+    
+    
+    
+    NSLog(@"path:%@",path.absoluteString);
+    
+    [picker dismissViewControllerAnimated:YES completion:nil];
+    
+    [self uploadimagebasic:info];
+}
+
+- (IBAction)changeImage:(id)sender {
+    
+    [self selectImage];
+}
+
+
+
+-(void)uploadpic:(NSDictionary *)info{
+    
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    
+    
+    NSString *url = [NSString stringWithFormat:@"https://u-snap.herokuapp.com/api/users/uploadProfilePic/%@",[defaults objectForKey:@"sessionid"]];
+    
+    NSURL *path = [info valueForKey:UIImagePickerControllerReferenceURL];
+    
+    
+    NSString *theFileName = [path.absoluteString lastPathComponent];
+    NSLog(@"%@",theFileName);
+    
+    NSMutableURLRequest *request = [[AFHTTPRequestSerializer serializer] multipartFormRequestWithMethod:@"POST" URLString:url  parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+        [formData appendPartWithFileURL:path
+                                   name:@"profilePic"
+                               fileName:theFileName
+                               mimeType:@"image/jpeg"
+                                  error:nil];
+    } error:nil];
+    
+    AFURLSessionManager *manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+    
+    NSURLSessionUploadTask *uploadTask;
+
+    uploadTask = [manager
+                  uploadTaskWithStreamedRequest:request
+                  progress:^(NSProgress * _Nonnull uploadProgress) {
+                      // This is not called back on the main queue.
+                      // You are responsible for dispatching to the main queue for UI updates
+                      dispatch_async(dispatch_get_main_queue(), ^{
+                          //Update the progress view
+                          // [SVProgressHUD setProgress:uploadProgress.fractionCompleted];
+                          
+                          [SVProgressHUD showProgress:uploadProgress.fractionCompleted];
+                          
+                      });
+                  }
+                  completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
+                      [SVProgressHUD dismiss];
+                      
+                      if (error) {
+                          NSLog(@"Error: %@", error);
+                      } else {
+                          NSLog(@"%@ %@", response, responseObject);
+                      }
+                  }];
+    
+    [uploadTask resume];
+    [SVProgressHUD show];
+}
+
+
+-(void)uploadimagebasic:(NSDictionary *)info{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    
+    
+    NSString *url = [NSString stringWithFormat:@"https://u-snap.herokuapp.com/api/users/uploadProfilePic/%@",[defaults objectForKey:@"sessionid"]];
+    
+    
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:url]];
+    
+    
+    UIImage *image = [info valueForKey:UIImagePickerControllerEditedImage];
+
+    
+    NSData *imageData = UIImageJPEGRepresentation(image, 1.0);
+    
+    [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
+    [request setHTTPShouldHandleCookies:NO];
+    [request setTimeoutInterval:60];
+    [request setHTTPMethod:@"POST"];
+    
+    NSString *boundary = @"unique-consistent-string";
+    
+    // set Content-Type in HTTP header
+    NSString *contentType = [NSString stringWithFormat:@"multipart/form-data; boundary=%@", boundary];
+    [request setValue:contentType forHTTPHeaderField: @"Content-Type"];
+    
+    // post body
+    NSMutableData *body = [NSMutableData data];
+    
+    // add params (all params are strings)
+    [body appendData:[[NSString stringWithFormat:@"--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=%@\r\n\r\n", @"profilePic"] dataUsingEncoding:NSUTF8StringEncoding]];
+    [body appendData:[[NSString stringWithFormat:@"%@\r\n", @"profilePic"] dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    // add image data
+    
+    
+    if (imageData) {
+        [body appendData:[[NSString stringWithFormat:@"--%@\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+        [body appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=%@; filename=imageName.jpg\r\n", @"profilePic"] dataUsingEncoding:NSUTF8StringEncoding]];
+        [body appendData:[@"Content-Type: image/jpeg\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+        [body appendData:imageData];
+        [body appendData:[[NSString stringWithFormat:@"\r\n"] dataUsingEncoding:NSUTF8StringEncoding]];
+    }
+    
+    [body appendData:[[NSString stringWithFormat:@"--%@--\r\n", boundary] dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    // setting the body of the post to the reqeust
+    [request setHTTPBody:body];
+    
+    // set the content-length
+    NSString *postLength = [NSString stringWithFormat:@"%lu", (unsigned long)[body length]];
+    [request setValue:postLength forHTTPHeaderField:@"Content-Length"];
+    
+    
+    [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue currentQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
+        if(data.length > 0)
+        {
+            //success
+            
+            [SVProgressHUD dismiss];
+            
+            if (error) {
+                NSLog(@"Error: %@", error);
+            } else {
+                NSLog(@"response %@", response );
+                
+                id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+                
+                NSLog(@"data %@", json );
+                
+                if([[json objectForKey:@"error_code"] isEqualToString:@"0"]){
+                    [self showAlert:[json objectForKey:@"message"] withtittle:@"Success"];
+
+                    
+                
+                }else{
+                    [self showAlert:[json objectForKey:@"message"] withtittle:@"Error"];
+
+                }
+                
+
+            }
+            
+            
+        }
+    }];
+    [SVProgressHUD show];
+    
+}
+
+-(void)getImage{
+    
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    
+    
+    
+    NSString *post = [NSString stringWithFormat:
+                      @"sessionId=%@",
+                      [defaults objectForKey:@"sessionid"]];
+    
+    NSData *postData = [post dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
+    
+    NSLog(@"%@",post);
+    
+    NSString *postLength = [NSString stringWithFormat:@"%lu", (unsigned long)[postData length]];
+    
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+    [request setURL:[NSURL URLWithString:@"https://u-snap.herokuapp.com/api/users/getProfilePicture"]];
+    
+    [request setHTTPMethod:@"POST"];
+    [request setValue:postLength forHTTPHeaderField:@"Content-Length"];
+    [request setHTTPBody:postData];
+    
+    
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+    [[session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        [SVProgressHUD dismiss];
+        
+        NSLog(@"eror:%@",error);
+        NSLog(@"response:%@",response.description);
+        
+        if(data == nil){
+            [self showAlert:error.localizedDescription withtittle:@"Error"];
+
+        }
+        else{
+            
+            NSLog(@"data:%@",data);
+            
+            UIImage *image = [UIImage imageWithData:data];
+            
+            if(image!=nil){
+                [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
+                    self.user_pic.image = image;
+                }];
+            }
+            }
+            
+        
+    }] resume];
+    [SVProgressHUD show];
+    
+    
+
+    
 }
 
 

@@ -20,11 +20,10 @@ target 'services' do
   pod 'GooglePlacePicker'
   pod 'GoogleMaps'
   pod 'AFNetworking', '~> 3.0'
-
-
-
-  
-  
+  pod 'JDFTooltips'
+  pod 'CZPicker'
+  pod 'YangMingShan'
+  pod 'JVFloatLabeledTextField'
 
   target 'servicesTests' do
     inherit! :search_paths

@@ -7,8 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <GoogleMaps/GoogleMaps.h>
 
-@interface SPListViewController : UIViewController
+
+@interface SPListViewController : UIViewController <GMSMapViewDelegate, CLLocationManagerDelegate>
 @property (weak,nonatomic) NSString *serviceId;
 
 

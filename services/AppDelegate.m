@@ -13,6 +13,11 @@
 #import "HomeViewController.h"
 #import "SignInViewController.h"
 
+#import <GoogleMaps/GoogleMaps.h>
+#import <GooglePlaces/GooglePlaces.h>
+#import <GooglePlacePicker/GooglePlacePicker.h>
+#import <AdSupport/ASIdentifierManager.h>
+
 @import LGSideMenuController;
 
 
@@ -54,7 +59,30 @@
     }
     
     
+    [GMSPlacesClient provideAPIKey:@"AIzaSyBvPYrrSZB4IpXt5gJpBqtG_pcOkEp406M"];
+    [GMSServices provideAPIKey:@"AIzaSyBvPYrrSZB4IpXt5gJpBqtG_pcOkEp406M"];
+    
+    //NSUUID *uuid = [NSUUID UUID];
+    NSString *uuidString = [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];
+    
+    UIDevice *device = [UIDevice currentDevice];
+    
+    NSString  *currentDeviceId = [[device identifierForVendor]UUIDString];
+    NSString  *currentDeviceType = [device model];
+    NSString  *currentDeviceName = [device name];
 
+    
+    NSLog(@"device_id : %@",currentDeviceId);
+    NSLog(@"device_type : %@",currentDeviceType);
+    NSLog(@"device_name : %@",currentDeviceName);
+
+    
+    self.device_id = currentDeviceId;
+    self.device_type = currentDeviceType;
+    self.device_name = currentDeviceName;
+    
+    self.banner_images = [[NSMutableDictionary alloc] init];
+    
     
     return YES;
 }
@@ -89,12 +117,12 @@
     
     - (OnboardingViewController *)generateStandardOnboardingVC {
         
-        OnboardingContentViewController *firstPage = [OnboardingContentViewController contentWithTitle:@"Want to complete your tasks?" body:@"Choose from over 50+ services & 10,000+ verified professionals, ready to serve you" image:[UIImage imageNamed:@"t2"] buttonText:nil action:nil];
+        OnboardingContentViewController *firstPage = [OnboardingContentViewController contentWithTitle:@"Want to complete your tasks?" body:@"Choose from verified professionals, ready to serve you" image:[UIImage imageNamed:@"t2"] buttonText:nil action:nil];
         
         OnboardingContentViewController *secondPage = [OnboardingContentViewController contentWithTitle:@"Just tell us what you need" body:@"and get customized quotes from the best matched professional around you" image:[UIImage imageNamed:@"t3"] buttonText:nil action:nil];
         secondPage.movesToNextViewController = YES;
         
-        OnboardingContentViewController *thirdPage = [OnboardingContentViewController contentWithTitle:@"Compare Profiles & Connect" body:@"with chosen professional via chat or call, finalize details & hire" image:[UIImage imageNamed:@"t4"] buttonText:nil action:nil];
+        OnboardingContentViewController *thirdPage = [OnboardingContentViewController contentWithTitle:@"Compare Profiles & Connect" body:@"with chosen professional via call, finalize details & hire" image:[UIImage imageNamed:@"t4"] buttonText:nil action:nil];
         
         OnboardingContentViewController *fourthPage = [OnboardingContentViewController contentWithTitle:@"Relax, while your  task get done" body:@"& get enough time to do what you love. So lets get started now" image:[UIImage imageNamed:@"t5"] buttonText:nil action:nil];
         
@@ -244,10 +272,6 @@
         
         
         self.window.rootViewController = sideMenuController;
-    
-    
-    
-        
 }
 
 

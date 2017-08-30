@@ -17,6 +17,14 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
+    
+    //UIGraphicsBeginImageContext(self.view.frame.size);
+    //[[UIImage imageNamed:@"location-gray.png"] drawInRect:self.view.bounds];
+   // UIImage *image = [UIImage imageNamed:@"rose.png"];
+    //UIGraphicsEndImageContext();
+    
+    //self.view.backgroundColor = [UIColor colorWithPatternImage:image];
 }
 
 - (void)didReceiveMemoryWarning {
