@@ -10,9 +10,9 @@
 #endif
 #endif
 
+#import "LGSideMenuBorderView.h"
 #import "LGSideMenuController.h"
-#import "LGSideMenuControllerGesturesHandler.h"
-#import "LGSideMenuDrawer.h"
+#import "LGSideMenuGesturesHandler.h"
 #import "LGSideMenuHelper.h"
 #import "LGSideMenuSegue.h"
 #import "LGSideMenuView.h"

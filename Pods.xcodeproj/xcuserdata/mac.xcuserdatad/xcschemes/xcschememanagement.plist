@@ -14,7 +14,22 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>CZPicker.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>IQKeyboardManager.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>JDFTooltips.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>JVFloatLabeledTextField.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -54,6 +69,11 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>YangMingShan.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
@@ -62,12 +82,27 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>253850BA0F9C93C9CF7D1290E9BAA448</key>
+		<key>0CC424607E2CE24ADC8A6192FA12DE3D</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>49B7FE6C0591C5DA059253F4365FBB64</key>
+		<key>279AA6726F52A334C45E85774BD21A3D</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>287D3FE164B465E9AE49B2DF1484AE3D</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>2A4448146C785C426971111F117D773C</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>418231A9228156A18F42EC4AB9FB78CB</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -82,11 +117,6 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>88727275D3D5EA580F62260FE816A557</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
 		<key>8F5682E0AC126B1910FC04BA8A16F382</key>
 		<dict>
 			<key>primary</key>
@@ -97,12 +127,22 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>C36CB2CB977A4E7D954935096D00A1ED</key>
+		<key>BCE658048CEF5C495FEEC1B50038B553</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
 		<key>CF671F7E57B92905F1CC91D036D6B4A7</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>FCA0F925FFD4ECCAF2652787C9A6FE22</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>FD0EA4E3DD886BC6C7B27855C4BCD3EC</key>
 		<dict>
 			<key>primary</key>
 			<true/>

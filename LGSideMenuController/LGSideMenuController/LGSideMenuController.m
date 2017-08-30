@@ -31,26 +31,35 @@
 
 #import "LGSideMenuController.h"
 #import "LGSideMenuView.h"
-#import "LGSideMenuControllerGesturesHandler.h"
-#import "LGSideMenuDrawer.h"
+#import "LGSideMenuGesturesHandler.h"
 #import "LGSideMenuHelper.h"
 #import "LGSideMenuSegue.h"
+#import "LGSideMenuBorderView.h"
 
 #pragma mark - Constants
 
-NSString * _Nonnull const LGSideMenuControllerWillShowLeftViewNotification = @"LGSideMenuControllerWillShowLeftViewNotification";
-NSString * _Nonnull const LGSideMenuControllerDidShowLeftViewNotification  = @"LGSideMenuControllerDidShowLeftViewNotification";
+NSString * _Nonnull const LGSideMenuWillShowLeftViewNotification = @"LGSideMenuWillShowLeftViewNotification";
+NSString * _Nonnull const LGSideMenuDidShowLeftViewNotification  = @"LGSideMenuDidShowLeftViewNotification";
 
-NSString * _Nonnull const LGSideMenuControllerWillHideLeftViewNotification = @"LGSideMenuControllerWillHideLeftViewNotification";
-NSString * _Nonnull const LGSideMenuControllerDidHideLeftViewNotification  = @"LGSideMenuControllerDidHideLeftViewNotification";
+NSString * _Nonnull const LGSideMenuWillHideLeftViewNotification = @"LGSideMenuWillHideLeftViewNotification";
+NSString * _Nonnull const LGSideMenuDidHideLeftViewNotification  = @"LGSideMenuDidHideLeftViewNotification";
 
-NSString * _Nonnull const LGSideMenuControllerWillShowRightViewNotification = @"LGSideMenuControllerWillShowRightViewNotification";
-NSString * _Nonnull const LGSideMenuControllerDidShowRightViewNotification  = @"LGSideMenuControllerDidShowRightViewNotification";
+NSString * _Nonnull const LGSideMenuWillShowRightViewNotification = @"LGSideMenuWillShowRightViewNotification";
+NSString * _Nonnull const LGSideMenuDidShowRightViewNotification  = @"LGSideMenuDidShowRightViewNotification";
 
-NSString * _Nonnull const LGSideMenuControllerWillHideRightViewNotification = @"LGSideMenuControllerWillHideRightViewNotification";
-NSString * _Nonnull const LGSideMenuControllerDidHideRightViewNotification  = @"LGSideMenuControllerDidHideRightViewNotification";
+NSString * _Nonnull const LGSideMenuWillHideRightViewNotification = @"LGSideMenuWillHideRightViewNotification";
+NSString * _Nonnull const LGSideMenuDidHideRightViewNotification  = @"LGSideMenuDidHideRightViewNotification";
 
-static CGFloat const LGSideMenuControllerRotationDuration = 0.25;
+NSString *_Nonnull const LGSideMenuShowLeftViewAnimationsNotification = @"LGSideMenuShowLeftViewAnimationsNotification";
+NSString *_Nonnull const LGSideMenuHideLeftViewAnimationsNotification = @"LGSideMenuHideLeftViewAnimationsNotification";
+
+NSString *_Nonnull const LGSideMenuShowRightViewAnimationsNotification = @"LGSideMenuShowRightViewAnimationsNotification";
+NSString *_Nonnull const LGSideMenuHideRightViewAnimationsNotification = @"LGSideMenuHideRightViewAnimationsNotification";
+
+NSString * _Nonnull const kLGSideMenuView              = @"view";
+NSString * _Nonnull const kLGSideMenuAnimationDuration = @"duration";
+
+static CGFloat const LGSideMenuRotationDuration = 0.25;
 
 #pragma mark -
 
@@ -80,18 +89,16 @@ LGSideMenuSwipeGestureRange LGSideMenuSwipeGestureRangeMake(CGFloat left, CGFloa
 
 @property (assign, nonatomic) CGSize savedSize;
 
-@property (strong, nonatomic) UIImageView        *rootViewStyleView;
-@property (strong, nonatomic) UIVisualEffectView *rootViewCoverView;
+@property (strong, nonatomic) LGSideMenuBorderView *rootViewStyleView;
+@property (strong, nonatomic) UIVisualEffectView   *rootViewCoverView;
 
-@property (strong, nonatomic) UIView             *leftViewBackgroundColorView;
-@property (strong, nonatomic) UIImageView        *leftViewBackgroundImageView;
-@property (strong, nonatomic) UIVisualEffectView *leftViewStyleView;
-@property (strong, nonatomic) UIImageView        *leftViewBorderAndShadowView;
+@property (strong, nonatomic, readwrite) UIImageView *leftViewBackgroundView;
+@property (strong, nonatomic) UIVisualEffectView     *leftViewStyleView;
+@property (strong, nonatomic) LGSideMenuBorderView   *leftViewBorderView;
 
-@property (strong, nonatomic) UIView             *rightViewBackgroundColorView;
-@property (strong, nonatomic) UIImageView        *rightViewBackgroundImageView;
-@property (strong, nonatomic) UIVisualEffectView *rightViewStyleView;
-@property (strong, nonatomic) UIImageView        *rightViewBorderAndShadowView;
+@property (strong, nonatomic, readwrite) UIImageView *rightViewBackgroundView;
+@property (strong, nonatomic) UIVisualEffectView     *rightViewStyleView;
+@property (strong, nonatomic) LGSideMenuBorderView   *rightViewBorderView;
 
 @property (strong, nonatomic) UIVisualEffectView *sideViewsCoverView;
 
@@ -101,7 +108,7 @@ LGSideMenuSwipeGestureRange LGSideMenuSwipeGestureRangeMake(CGFloat left, CGFloa
 @property (assign, nonatomic, getter=isLeftViewShowingBeforeGesture)  BOOL leftViewShowingBeforeGesture;
 @property (assign, nonatomic, getter=isRightViewShowingBeforeGesture) BOOL rightViewShowingBeforeGesture;
 
-@property (strong, nonatomic) LGSideMenuControllerGesturesHandler *gesturesHandler;
+@property (strong, nonatomic) LGSideMenuGesturesHandler *gesturesHandler;
 
 @property (strong, nonatomic, readwrite) UITapGestureRecognizer *tapGesture;
 @property (strong, nonatomic, readwrite) UIPanGestureRecognizer *panGesture;
@@ -130,8 +137,8 @@ LGSideMenuSwipeGestureRange LGSideMenuSwipeGestureRangeMake(CGFloat left, CGFloa
 @property (assign, nonatomic, getter=isUserRightViewInitialOffsetX)              BOOL userRightViewInitialOffsetX;
 @property (assign, nonatomic, getter=isUserLeftViewBackgroundImageInitialScale)  BOOL userLeftViewBackgroundImageInitialScale;
 @property (assign, nonatomic, getter=isUserRightViewBackgroundImageInitialScale) BOOL userRightViewBackgroundImageInitialScale;
-@property (assign, nonatomic, getter=isUserLeftViewBackgroundImageFinalScale)  BOOL userLeftViewBackgroundImageFinalScale;
-@property (assign, nonatomic, getter=isUserRightViewBackgroundImageFinalScale) BOOL userRightViewBackgroundImageFinalScale;
+@property (assign, nonatomic, getter=isUserLeftViewBackgroundImageFinalScale)    BOOL userLeftViewBackgroundImageFinalScale;
+@property (assign, nonatomic, getter=isUserRightViewBackgroundImageFinalScale)   BOOL userRightViewBackgroundImageFinalScale;
 
 @end
 
@@ -140,23 +147,6 @@ LGSideMenuSwipeGestureRange LGSideMenuSwipeGestureRangeMake(CGFloat left, CGFloa
 @implementation LGSideMenuController
 
 @synthesize
-rootViewController = _rootViewController,
-leftViewBackgroundImage = _leftViewBackgroundImage,
-rightViewBackgroundImage = _rightViewBackgroundImage,
-leftViewBackgroundBlurEffect = _leftViewBackgroundBlurEffect,
-rightViewBackgroundBlurEffect = _rightViewBackgroundBlurEffect,
-leftViewBackgroundAlpha = _leftViewBackgroundAlpha,
-rightViewBackgroundAlpha = _rightViewBackgroundAlpha,
-rootViewLayerShadowColor = _rootViewLayerShadowColor,
-leftViewLayerShadowColor = _leftViewLayerShadowColor,
-rightViewLayerShadowColor = _rightViewLayerShadowColor,
-rootViewLayerShadowRadius = _rootViewLayerShadowRadius,
-leftViewLayerShadowRadius = _leftViewLayerShadowRadius,
-rightViewLayerShadowRadius = _rightViewLayerShadowRadius,
-leftViewCoverBlurEffect = _leftViewCoverBlurEffect,
-rightViewCoverBlurEffect = _rightViewCoverBlurEffect,
-leftViewCoverAlpha = _leftViewCoverAlpha,
-rightViewCoverAlpha = _rightViewCoverAlpha,
 rootViewShouldAutorotate = _rootViewShouldAutorotate,
 rootViewStatusBarHidden = _rootViewStatusBarHidden,
 leftViewStatusBarHidden = _leftViewStatusBarHidden,
@@ -326,7 +316,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
     }
 
     // Needed to be initialized before default properties (setupDefaults)
-    self.gesturesHandler = [[LGSideMenuControllerGesturesHandler alloc] initWithSideMenuController:self];
+    self.gesturesHandler = [[LGSideMenuGesturesHandler alloc] initWithSideMenuController:self];
 
     self.leftViewWidth = sideMenuWidth;
     self.rightViewWidth = sideMenuWidth;
@@ -347,8 +337,8 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
     self.leftViewSwipeGestureRange = LGSideMenuSwipeGestureRangeMake(44.0, 44.0);
     self.rightViewSwipeGestureRange = LGSideMenuSwipeGestureRangeMake(44.0, 44.0);
 
-    self.leftViewAnimationSpeed = 0.5;
-    self.rightViewAnimationSpeed = 0.5;
+    self.leftViewAnimationDuration = 0.5;
+    self.rightViewAnimationDuration = 0.5;
 
     self.shouldHideLeftViewAnimated = YES;
     self.shouldHideRightViewAnimated = YES;
@@ -411,7 +401,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
         self.needsUpdateLayoutsAndStyles = NO;
 
         // If side view is always visible and after rotating it should hide, we need to wait until rotation is finished
-        [self updateLayoutsAndStylesWithDelay:(appeared ? LGSideMenuControllerRotationDuration : 0.0)];
+        [self updateLayoutsAndStylesWithDelay:(appeared ? LGSideMenuRotationDuration : 0.0)];
     }
 }
 
@@ -546,120 +536,6 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
     [self rightViewsTransformValidate];
 
     [self visibilityValidateWithDelay:delay];
-}
-
-#pragma mark - Static defaults getters
-
-- (UIImage *)leftViewBackgroundImage {
-    if (self.leftViewPresentationStyle == LGSideMenuPresentationStyleSlideAbove) {
-        return nil;
-    }
-
-    return _leftViewBackgroundImage;
-}
-
-- (UIImage *)rightViewBackgroundImage {
-    if (self.rightViewPresentationStyle == LGSideMenuPresentationStyleSlideAbove) {
-        return nil;
-    }
-
-    return _rightViewBackgroundImage;
-}
-
-- (UIBlurEffect *)leftViewBackgroundBlurEffect {
-    if (self.leftViewPresentationStyle != LGSideMenuPresentationStyleSlideAbove) {
-        return nil;
-    }
-
-    return _leftViewBackgroundBlurEffect;
-}
-
-- (UIBlurEffect *)rightViewBackgroundBlurEffect {
-    if (self.rightViewPresentationStyle != LGSideMenuPresentationStyleSlideAbove) {
-        return nil;
-    }
-
-    return _rightViewBackgroundBlurEffect;
-}
-
-- (CGFloat)leftViewBackgroundAlpha {
-    if (self.leftViewPresentationStyle != LGSideMenuPresentationStyleSlideAbove) {
-        return 1.0;
-    }
-
-    return _leftViewBackgroundAlpha;
-}
-
-- (CGFloat)rightViewBackgroundAlpha {
-    if (self.rightViewPresentationStyle != LGSideMenuPresentationStyleSlideAbove) {
-        return 1.0;
-    }
-
-    return _rightViewBackgroundAlpha;
-}
-
-- (UIColor *)leftViewLayerShadowColor {
-    if (self.leftViewPresentationStyle != LGSideMenuPresentationStyleSlideAbove) {
-        return nil;
-    }
-
-    return _leftViewLayerShadowColor;
-}
-
-- (UIColor *)rightViewLayerShadowColor {
-    if (self.rightViewPresentationStyle != LGSideMenuPresentationStyleSlideAbove) {
-        return nil;
-    }
-
-    return _rightViewLayerShadowColor;
-}
-
-- (CGFloat)leftViewLayerShadowRadius {
-    if (self.leftViewPresentationStyle != LGSideMenuPresentationStyleSlideAbove) {
-        return 0.0;
-    }
-
-    return _leftViewLayerShadowRadius;
-}
-
-- (CGFloat)rightViewLayerShadowRadius {
-    if (self.rightViewPresentationStyle != LGSideMenuPresentationStyleSlideAbove) {
-        return 0.0;
-    }
-
-    return _rightViewLayerShadowRadius;
-}
-
-- (UIBlurEffect *)leftViewCoverBlurEffect {
-    if (self.leftViewPresentationStyle == LGSideMenuPresentationStyleSlideAbove) {
-        return nil;
-    }
-
-    return _leftViewCoverBlurEffect;
-}
-
-- (UIBlurEffect *)rightViewCoverBlurEffect {
-    if (self.rightViewPresentationStyle == LGSideMenuPresentationStyleSlideAbove) {
-        return nil;
-    }
-
-    return _rightViewCoverBlurEffect;
-}
-
-- (CGFloat)leftViewCoverAlpha {
-    if (self.leftViewPresentationStyle == LGSideMenuPresentationStyleSlideAbove) {
-        return 1.0;
-    }
-
-    return _leftViewCoverAlpha;
-}
-
-- (CGFloat)rightViewCoverAlpha {
-    if (self.rightViewPresentationStyle == LGSideMenuPresentationStyleSlideAbove) {
-        return 1.0;
-    }
-
-    return _rightViewCoverAlpha;
 }
 
 #pragma mark - Dynamic defaults setters and getters
@@ -1328,6 +1204,30 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
               (UIInterfaceOrientationIsLandscape(orientation) && self.rightViewAlwaysVisibleOptions & LGSideMenuAlwaysVisibleOnPadLandscape))));
 }
 
+#pragma mark - Delegate
+
+- (void)setDelegate:(id<LGSideMenuDelegate>)delegate {
+    _delegate = delegate;
+
+    if (!delegate) return;
+
+    if ([delegate respondsToSelector:@selector(showAnimationsBlockForLeftView:sideMenuController:duration:)]) {
+        NSLog(@"WARNING: delegate method \"showAnimationsBlockForLeftView:sideMenuController:duration:\" is DEPRECATED, use \"showAnimationsForLeftView:sideMenuController:duration:\" instead");
+    }
+
+    if ([delegate respondsToSelector:@selector(hideAnimationsBlockForLeftView:sideMenuController:duration:)]) {
+        NSLog(@"WARNING: delegate method \"hideAnimationsBlockForLeftView:sideMenuController:duration:\" is DEPRECATED, use \"hideAnimationsForLeftView:sideMenuController:duration:\" instead");
+    }
+
+    if ([delegate respondsToSelector:@selector(showAnimationsBlockForRightView:sideMenuController:duration:)]) {
+        NSLog(@"WARNING: delegate method \"showAnimationsBlockForRightView:sideMenuController:duration:\" is DEPRECATED, use \"showAnimationsForRightView:sideMenuController:duration:\" instead");
+    }
+
+    if ([delegate respondsToSelector:@selector(hideAnimationsBlockForRightView:sideMenuController:duration:)]) {
+        NSLog(@"WARNING: delegate method \"hideAnimationsBlockForRightView:sideMenuController:duration:\" is DEPRECATED, use \"hideAnimationsForRightView:sideMenuController:duration:\" instead");
+    }
+}
+
 #pragma mark - ViewControllers
 
 - (void)setRootViewController:(UIViewController *)rootViewController {
@@ -1474,9 +1374,9 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
         _leftViewContainer = nil;
     }
 
-    if (self.leftViewBorderAndShadowView) {
-        [self.leftViewBorderAndShadowView removeFromSuperview];
-        _leftViewBorderAndShadowView = nil;
+    if (self.leftViewBorderView) {
+        [self.leftViewBorderView removeFromSuperview];
+        _leftViewBorderView = nil;
     }
 
     if (self.leftViewStyleView) {
@@ -1489,14 +1389,9 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
         _sideViewsCoverView = nil;
     }
 
-    if (self.leftViewBackgroundColorView) {
-        [self.leftViewBackgroundColorView removeFromSuperview];
-        _leftViewBackgroundColorView = nil;
-    }
-
-    if (self.leftViewBackgroundImageView) {
-        [self.leftViewBackgroundImageView removeFromSuperview];
-        _leftViewBackgroundImageView = nil;
+    if (self.leftViewBackgroundView) {
+        [self.leftViewBackgroundView removeFromSuperview];
+        _leftViewBackgroundView = nil;
     }
 }
 
@@ -1517,9 +1412,9 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
         _rightViewContainer = nil;
     }
 
-    if (self.rightViewBorderAndShadowView) {
-        [self.rightViewBorderAndShadowView removeFromSuperview];
-        _rightViewBorderAndShadowView = nil;
+    if (self.rightViewBorderView) {
+        [self.rightViewBorderView removeFromSuperview];
+        _rightViewBorderView = nil;
     }
 
     if (self.rightViewStyleView) {
@@ -1532,14 +1427,9 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
         _sideViewsCoverView = nil;
     }
 
-    if (self.rightViewBackgroundColorView) {
-        [self.rightViewBackgroundColorView removeFromSuperview];
-        _rightViewBackgroundColorView = nil;
-    }
-
-    if (self.rightViewBackgroundImageView) {
-        [self.rightViewBackgroundImageView removeFromSuperview];
-        _rightViewBackgroundImageView = nil;
+    if (self.rightViewBackgroundView) {
+        [self.rightViewBackgroundView removeFromSuperview];
+        _rightViewBackgroundView = nil;
     }
 }
 
@@ -1559,10 +1449,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
     if ((self.leftView && self.leftViewPresentationStyle != LGSideMenuPresentationStyleSlideAbove) ||
         (self.rightView && self.rightViewPresentationStyle != LGSideMenuPresentationStyleSlideAbove)) {
         if (!self.rootViewStyleView) {
-            self.rootViewStyleView = [UIImageView new];
-            self.rootViewStyleView.contentMode = UIViewContentModeScaleToFill;
-            self.rootViewStyleView.clipsToBounds = YES;
-            self.rootViewStyleView.userInteractionEnabled = NO;
+            self.rootViewStyleView = [LGSideMenuBorderView new];
         }
     }
     else {
@@ -1604,43 +1491,34 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 
     // -----
 
-    if (self.leftViewBackgroundColor && self.leftViewPresentationStyle != LGSideMenuPresentationStyleSlideAbove) {
-        if (!self.leftViewBackgroundColorView) {
-            self.leftViewBackgroundColorView = [UIView new];
-            self.leftViewBackgroundColorView.userInteractionEnabled = NO;
+    if (self.leftViewPresentationStyle != LGSideMenuPresentationStyleSlideAbove) {
+        if (!self.leftViewBackgroundView) {
+            self.leftViewBackgroundView = [UIImageView new];
+            self.leftViewBackgroundView.contentMode = UIViewContentModeScaleAspectFill;
+            self.leftViewBackgroundView.clipsToBounds = YES;
+            self.leftViewBackgroundView.userInteractionEnabled = NO;
         }
     }
     else {
-        self.leftViewBackgroundColorView = nil;
+        self.leftViewBackgroundView = nil;
     }
 
     // -----
 
-    if (self.leftViewBackgroundImage && self.leftViewPresentationStyle != LGSideMenuPresentationStyleSlideAbove) {
-        if (!self.leftViewBackgroundImageView) {
-            self.leftViewBackgroundImageView = [[UIImageView alloc] initWithImage:self.leftViewBackgroundImage];
-            self.leftViewBackgroundImageView.contentMode = UIViewContentModeScaleAspectFill;
-            self.leftViewBackgroundImageView.clipsToBounds = YES;
-            self.leftViewBackgroundImageView.userInteractionEnabled = NO;
+    if (self.leftViewPresentationStyle == LGSideMenuPresentationStyleSlideAbove) {
+        if (!self.leftViewStyleView) {
+            self.leftViewStyleView = [UIVisualEffectView new];
+            self.leftViewStyleView.userInteractionEnabled = NO;
+            self.leftViewStyleView.contentView.clipsToBounds = NO;
+            self.leftViewStyleView.layer.anchorPoint = CGPointMake(0.0, 0.5);
+
+            self.leftViewBorderView = [LGSideMenuBorderView new];
+            [self.leftViewStyleView.contentView addSubview:self.leftViewBorderView];
         }
     }
     else {
-        self.leftViewBackgroundImageView = nil;
-    }
-
-    // -----
-
-    if (!self.leftViewStyleView) {
-        self.leftViewStyleView = [UIVisualEffectView new];
-        self.leftViewStyleView.userInteractionEnabled = NO;
-        self.leftViewStyleView.contentView.clipsToBounds = NO;
-        self.leftViewStyleView.layer.anchorPoint = CGPointMake(0.0, 0.5);
-
-        self.leftViewBorderAndShadowView = [UIImageView new];
-        self.leftViewBorderAndShadowView.contentMode = UIViewContentModeScaleToFill;
-        self.leftViewBorderAndShadowView.clipsToBounds = YES;
-        self.leftViewBorderAndShadowView.userInteractionEnabled = NO;
-        [self.leftViewStyleView.contentView addSubview:self.leftViewBorderAndShadowView];
+        self.leftViewStyleView = nil;
+        self.leftViewBorderView = nil;
     }
 
     // -----
@@ -1684,45 +1562,34 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 
     // -----
 
-    if (self.rightViewBackgroundColor && self.rightViewPresentationStyle != LGSideMenuPresentationStyleSlideAbove) {
-        if (!self.rightViewBackgroundColorView) {
-            self.rightViewBackgroundColorView = [UIView new];
-            self.rightViewBackgroundColorView.userInteractionEnabled = NO;
+    if (self.rightViewPresentationStyle != LGSideMenuPresentationStyleSlideAbove) {
+        if (!self.rightViewBackgroundView) {
+            self.rightViewBackgroundView = [UIImageView new];
+            self.rightViewBackgroundView.contentMode = UIViewContentModeScaleAspectFill;
+            self.rightViewBackgroundView.clipsToBounds = YES;
+            self.rightViewBackgroundView.userInteractionEnabled = NO;
         }
     }
     else {
-        self.rightViewBackgroundColorView = nil;
+        self.rightViewBackgroundView = nil;
     }
 
     // -----
 
-    if (self.rightViewBackgroundImage && self.rightViewPresentationStyle != LGSideMenuPresentationStyleSlideAbove) {
-        if (!self.rightViewBackgroundImageView) {
-            self.rightViewBackgroundImageView = [[UIImageView alloc] initWithImage:self.rightViewBackgroundImage];
-            self.rightViewBackgroundImageView.contentMode = UIViewContentModeScaleAspectFill;
-            self.rightViewBackgroundImageView.clipsToBounds = YES;
-            self.rightViewBackgroundImageView.userInteractionEnabled = NO;
+    if (self.rightViewPresentationStyle == LGSideMenuPresentationStyleSlideAbove) {
+        if (!self.rightViewStyleView) {
+            self.rightViewStyleView = [UIVisualEffectView new];
+            self.rightViewStyleView.userInteractionEnabled = NO;
+            self.rightViewStyleView.contentView.clipsToBounds = NO;
+            self.rightViewStyleView.layer.anchorPoint = CGPointMake(1.0, 0.5);
+
+            self.rightViewBorderView = [LGSideMenuBorderView new];
+            [self.rightViewStyleView.contentView addSubview:self.rightViewBorderView];
         }
     }
     else {
-        self.rightViewBackgroundImageView = nil;
-    }
-
-    // -----
-
-    if (!self.rightViewStyleView) {
-        self.rightViewStyleView = [UIVisualEffectView new];
-        self.rightViewStyleView.userInteractionEnabled = NO;
-        self.rightViewStyleView.contentView.clipsToBounds = NO;
-        self.rightViewStyleView.layer.anchorPoint = CGPointMake(1.0, 0.5);
-
-        if (!self.rightViewBorderAndShadowView) {
-            self.rightViewBorderAndShadowView = [UIImageView new];
-            self.rightViewBorderAndShadowView.contentMode = UIViewContentModeScaleToFill;
-            self.rightViewBorderAndShadowView.clipsToBounds = YES;
-            self.rightViewBorderAndShadowView.userInteractionEnabled = NO;
-            [self.rightViewStyleView.contentView addSubview:self.rightViewBorderAndShadowView];
-        }
+        self.rightViewStyleView = nil;
+        self.rightViewBorderView = nil;
     }
 
     // -----
@@ -1760,13 +1627,11 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
     [self.rootViewContainer removeFromSuperview];
     [self.rootViewCoverView removeFromSuperview];
 
-    [self.leftViewBackgroundColorView removeFromSuperview];
-    [self.leftViewBackgroundImageView removeFromSuperview];
+    [self.leftViewBackgroundView removeFromSuperview];
     [self.leftViewStyleView removeFromSuperview];
     [self.leftViewContainer removeFromSuperview];
 
-    [self.rightViewBackgroundColorView removeFromSuperview];
-    [self.rightViewBackgroundImageView removeFromSuperview];
+    [self.rightViewBackgroundView removeFromSuperview];
     [self.rightViewStyleView removeFromSuperview];
     [self.rightViewContainer removeFromSuperview];
 
@@ -1777,12 +1642,8 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
     BOOL isSideViewAdded = false;
 
     if (self.leftViewPresentationStyle != LGSideMenuPresentationStyleSlideAbove) {
-        if (self.leftViewBackgroundColorView) {
-            [self.view addSubview:self.leftViewBackgroundColorView];
-        }
-
-        if (self.leftViewBackgroundImageView) {
-            [self.view addSubview:self.leftViewBackgroundImageView];
+        if (self.leftViewBackgroundView) {
+            [self.view addSubview:self.leftViewBackgroundView];
         }
 
         if (self.leftViewStyleView) {
@@ -1797,12 +1658,8 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
     }
 
     if (self.rightViewPresentationStyle != LGSideMenuPresentationStyleSlideAbove) {
-        if (self.rightViewBackgroundColorView) {
-            [self.view addSubview:self.rightViewBackgroundColorView];
-        }
-
-        if (self.rightViewBackgroundImageView) {
-            [self.view addSubview:self.rightViewBackgroundImageView];
+        if (self.rightViewBackgroundView) {
+            [self.view addSubview:self.rightViewBackgroundView];
         }
 
         if (self.rightViewStyleView) {
@@ -1986,25 +1843,27 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 
     // -----
 
-    self.leftViewStyleView.transform = CGAffineTransformIdentity;
-    self.leftViewStyleView.frame = leftViewFrame;
+    if (self.leftViewStyleView) {
+        self.leftViewStyleView.transform = CGAffineTransformIdentity;
+        self.leftViewStyleView.frame = leftViewFrame;
 
-    CGFloat offset = self.leftViewLayerBorderWidth + self.leftViewLayerShadowRadius;
-    CGRect leftViewBorderAndShadowViewFrame = CGRectMake(-offset,
-                                                         -offset,
-                                                         CGRectGetWidth(leftViewFrame) + (offset * 2.0),
-                                                         CGRectGetHeight(leftViewFrame) + (offset * 2.0));
+        CGFloat offset = self.leftViewLayerBorderWidth + self.leftViewLayerShadowRadius;
+        CGRect leftViewBorderViewFrame = CGRectMake(-offset,
+                                                    -offset,
+                                                    CGRectGetWidth(leftViewFrame) + (offset * 2.0),
+                                                    CGRectGetHeight(leftViewFrame) + (offset * 2.0));
 
-    if (LGSideMenuHelper.isNotRetina) {
-        leftViewBorderAndShadowViewFrame = CGRectIntegral(leftViewBorderAndShadowViewFrame);
+        if (LGSideMenuHelper.isNotRetina) {
+            leftViewBorderViewFrame = CGRectIntegral(leftViewBorderViewFrame);
+        }
+
+        self.leftViewBorderView.transform = CGAffineTransformIdentity;
+        self.leftViewBorderView.frame = leftViewBorderViewFrame;
     }
-
-    self.leftViewBorderAndShadowView.transform = CGAffineTransformIdentity;
-    self.leftViewBorderAndShadowView.frame = leftViewBorderAndShadowViewFrame;
 
     // -----
 
-    if (self.leftViewPresentationStyle != LGSideMenuPresentationStyleSlideAbove) {
+    if (self.leftViewBackgroundView) {
         CGRect backgroundViewFrame = CGRectMake(0.0, 0.0, frameWidth, frameHeight);
 
         if (self.isLeftViewAlwaysVisibleForCurrentOrientation && self.isRightViewAlwaysVisibleForCurrentOrientation) {
@@ -2016,11 +1875,8 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
             backgroundViewFrame = CGRectIntegral(backgroundViewFrame);
         }
 
-        self.leftViewBackgroundColorView.transform = CGAffineTransformIdentity;
-        self.leftViewBackgroundColorView.frame = backgroundViewFrame;
-
-        self.leftViewBackgroundImageView.transform = CGAffineTransformIdentity;
-        self.leftViewBackgroundImageView.frame = backgroundViewFrame;
+        self.leftViewBackgroundView.transform = CGAffineTransformIdentity;
+        self.leftViewBackgroundView.frame = backgroundViewFrame;
     }
 }
 
@@ -2043,7 +1899,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 
     CGFloat frameX = 0.0;
     CGAffineTransform leftViewScaleTransform = CGAffineTransformIdentity;
-    CGAffineTransform backgroundViewTransform = CGAffineTransformIdentity;
+    CGAffineTransform leftViewBackgroundViewTransform = CGAffineTransformIdentity;
 
     // -----
 
@@ -2053,10 +1909,10 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
         }
         else {
             CGFloat leftViewScale = 1.0 + (self.leftViewInitialScale - 1.0) * (1.0 - percentage);
-            CGFloat backgroundViewScale = self.leftViewBackgroundImageFinalScale + ((self.leftViewBackgroundImageInitialScale - self.leftViewBackgroundImageFinalScale) * (1.0 - percentage));
+            CGFloat leftViewBackgroundViewScale = self.leftViewBackgroundImageFinalScale + ((self.leftViewBackgroundImageInitialScale - self.leftViewBackgroundImageFinalScale) * (1.0 - percentage));
 
             leftViewScaleTransform = CGAffineTransformMakeScale(leftViewScale, leftViewScale);
-            backgroundViewTransform = CGAffineTransformMakeScale(backgroundViewScale, backgroundViewScale);
+            leftViewBackgroundViewTransform = CGAffineTransformMakeScale(leftViewBackgroundViewScale, leftViewBackgroundViewScale);
 
             frameX = self.leftViewInitialOffsetX * (1.0 - percentage);
         }
@@ -2068,13 +1924,8 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
     // -----
 
     self.leftViewContainer.transform = leftViewTransform;
-
-    if (self.leftViewPresentationStyle != LGSideMenuPresentationStyleSlideAbove) {
-        self.leftViewBackgroundImageView.transform = backgroundViewTransform;
-    }
-    else {
-        self.leftViewStyleView.transform = leftViewTransform;
-    }
+    self.leftViewBackgroundView.transform = leftViewBackgroundViewTransform;
+    self.leftViewStyleView.transform = leftViewTransform;
 }
 
 - (void)rightViewsFramesValidate {
@@ -2109,25 +1960,27 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 
     // -----
 
-    self.rightViewStyleView.transform = CGAffineTransformIdentity;
-    self.rightViewStyleView.frame = rightViewFrame;
+    if (self.rightViewStyleView) {
+        self.rightViewStyleView.transform = CGAffineTransformIdentity;
+        self.rightViewStyleView.frame = rightViewFrame;
 
-    CGFloat offset = self.rightViewLayerBorderWidth + self.rightViewLayerShadowRadius;
-    CGRect rightViewBorderAndShadowViewFrame = CGRectMake(-offset,
-                                                          -offset,
-                                                          CGRectGetWidth(rightViewFrame) + (offset * 2.0),
-                                                          CGRectGetHeight(rightViewFrame) + (offset * 2.0));
+        CGFloat offset = self.rightViewLayerBorderWidth + self.rightViewLayerShadowRadius;
+        CGRect rightViewBorderViewFrame = CGRectMake(-offset,
+                                                     -offset,
+                                                     CGRectGetWidth(rightViewFrame) + (offset * 2.0),
+                                                     CGRectGetHeight(rightViewFrame) + (offset * 2.0));
 
-    if (LGSideMenuHelper.isNotRetina) {
-        rightViewBorderAndShadowViewFrame = CGRectIntegral(rightViewBorderAndShadowViewFrame);
+        if (LGSideMenuHelper.isNotRetina) {
+            rightViewBorderViewFrame = CGRectIntegral(rightViewBorderViewFrame);
+        }
+
+        self.rightViewBorderView.transform = CGAffineTransformIdentity;
+        self.rightViewBorderView.frame = rightViewBorderViewFrame;
     }
-
-    self.rightViewBorderAndShadowView.transform = CGAffineTransformIdentity;
-    self.rightViewBorderAndShadowView.frame = rightViewBorderAndShadowViewFrame;
 
     // -----
 
-    if (self.rightViewPresentationStyle != LGSideMenuPresentationStyleSlideAbove) {
+    if (self.rightViewBackgroundView) {
         CGRect backgroundViewFrame = CGRectMake(0.0, 0.0, frameWidth, frameHeight);
 
         if (self.isLeftViewAlwaysVisibleForCurrentOrientation && self.isRightViewAlwaysVisibleForCurrentOrientation) {
@@ -2140,11 +1993,8 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
             backgroundViewFrame = CGRectIntegral(backgroundViewFrame);
         }
 
-        self.rightViewBackgroundColorView.transform = CGAffineTransformIdentity;
-        self.rightViewBackgroundColorView.frame = backgroundViewFrame;
-
-        self.rightViewBackgroundImageView.transform = CGAffineTransformIdentity;
-        self.rightViewBackgroundImageView.frame = backgroundViewFrame;
+        self.rightViewBackgroundView.transform = CGAffineTransformIdentity;
+        self.rightViewBackgroundView.frame = backgroundViewFrame;
     }
 }
 
@@ -2167,7 +2017,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 
     CGFloat frameX = 0.0;
     CGAffineTransform rightViewScaleTransform = CGAffineTransformIdentity;
-    CGAffineTransform backgroundViewTransform = CGAffineTransformIdentity;
+    CGAffineTransform rightViewBackgroundViewTransform = CGAffineTransformIdentity;
 
     // -----
 
@@ -2177,10 +2027,10 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
         }
         else {
             CGFloat rightViewScale = 1.0 + (self.rightViewInitialScale - 1.0) * (1.0 - percentage);
-            CGFloat backgroundViewScale = self.rightViewBackgroundImageFinalScale + ((self.rightViewBackgroundImageInitialScale - self.rightViewBackgroundImageFinalScale) * (1.0 - percentage));
+            CGFloat rightViewBackgroundViewScale = self.rightViewBackgroundImageFinalScale + ((self.rightViewBackgroundImageInitialScale - self.rightViewBackgroundImageFinalScale) * (1.0 - percentage));
 
             rightViewScaleTransform = CGAffineTransformMakeScale(rightViewScale, rightViewScale);
-            backgroundViewTransform = CGAffineTransformMakeScale(backgroundViewScale, backgroundViewScale);
+            rightViewBackgroundViewTransform = CGAffineTransformMakeScale(rightViewBackgroundViewScale, rightViewBackgroundViewScale);
 
             frameX = self.rightViewInitialOffsetX * (1.0 - percentage);
         }
@@ -2192,25 +2042,17 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
     // -----
 
     self.rightViewContainer.transform = rightViewTransform;
-
-    if (self.rightViewPresentationStyle != LGSideMenuPresentationStyleSlideAbove) {
-        self.rightViewBackgroundImageView.transform = backgroundViewTransform;
-    }
-    else {
-        self.rightViewStyleView.transform = rightViewTransform;
-    }
+    self.rightViewBackgroundView.transform = rightViewBackgroundViewTransform;
+    self.rightViewStyleView.transform = rightViewTransform;
 }
 
 - (void)stylesValidate {
     if (self.rootViewStyleView) {
-        [LGSideMenuHelper imageView:self.rootViewStyleView
-                       setImageSafe:[LGSideMenuDrawer drawRectangleWithViewSize:self.rootViewContainer.bounds.size
-                                                                 roundedCorners:0.0
-                                                                   cornerRadius:0.0
-                                                                    strokeColor:self.rootViewLayerBorderColor
-                                                                    strokeWidth:self.rootViewLayerBorderWidth
-                                                                    shadowColor:self.rootViewLayerShadowColor
-                                                                     shadowBlur:self.rootViewLayerShadowRadius]];
+        self.rootViewStyleView.strokeColor = self.rootViewLayerBorderColor;
+        self.rootViewStyleView.strokeWidth = self.rootViewLayerBorderWidth;
+        self.rootViewStyleView.shadowColor = self.rootViewLayerShadowColor;
+        self.rootViewStyleView.shadowBlur = self.rootViewLayerShadowRadius;
+        [self.rootViewStyleView setNeedsDisplay];
     }
 
     if (self.isLeftViewAlwaysVisibleForCurrentOrientation || self.isLeftViewVisible) {
@@ -2226,32 +2068,19 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 
         if (self.leftViewStyleView) {
             self.leftViewStyleView.alpha = self.leftViewBackgroundAlpha;
+            self.leftViewStyleView.backgroundColor = self.isLeftViewAlwaysVisibleForCurrentOrientation ? [self.leftViewBackgroundColor colorWithAlphaComponent:1.0] : self.leftViewBackgroundColor;
+            self.leftViewStyleView.effect = self.leftViewBackgroundBlurEffect;
 
-            if (self.leftViewPresentationStyle == LGSideMenuPresentationStyleSlideAbove) {
-                self.leftViewStyleView.backgroundColor = self.isLeftViewAlwaysVisibleForCurrentOrientation ? [self.leftViewBackgroundColor colorWithAlphaComponent:1.0] : self.leftViewBackgroundColor;
-                self.leftViewStyleView.effect = self.leftViewBackgroundBlurEffect;
-            }
-            else {
-                self.leftViewStyleView.backgroundColor = nil;
-                self.leftViewStyleView.effect = nil;
-            }
-
-            [LGSideMenuHelper imageView:self.leftViewBorderAndShadowView
-                           setImageSafe:[LGSideMenuDrawer drawRectangleWithViewSize:self.leftViewContainer.bounds.size
-                                                                     roundedCorners:0.0
-                                                                       cornerRadius:0.0
-                                                                        strokeColor:self.leftViewLayerBorderColor
-                                                                        strokeWidth:self.leftViewLayerBorderWidth
-                                                                        shadowColor:self.leftViewLayerShadowColor
-                                                                         shadowBlur:self.leftViewLayerShadowRadius]];
+            self.leftViewBorderView.strokeColor = self.leftViewLayerBorderColor;
+            self.leftViewBorderView.strokeWidth = self.leftViewLayerBorderWidth;
+            self.leftViewBorderView.shadowColor = self.leftViewLayerShadowColor;
+            self.leftViewBorderView.shadowBlur = self.leftViewLayerShadowRadius;
+            [self.leftViewBorderView setNeedsDisplay];
         }
 
-        if (self.leftViewBackgroundColorView) {
-            self.leftViewBackgroundColorView.backgroundColor = self.leftViewBackgroundColor;
-        }
-
-        if (self.leftViewBackgroundImageView) {
-            [LGSideMenuHelper imageView:self.leftViewBackgroundImageView setImageSafe:self.leftViewBackgroundImage];
+        if (self.leftViewBackgroundView) {
+            self.leftViewBackgroundView.backgroundColor = self.leftViewBackgroundColor;
+            [LGSideMenuHelper imageView:self.leftViewBackgroundView setImageSafe:self.leftViewBackgroundImage];
         }
     }
 
@@ -2268,32 +2097,19 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 
         if (self.rightViewStyleView) {
             self.rightViewStyleView.alpha = self.rightViewBackgroundAlpha;
+            self.rightViewStyleView.backgroundColor = self.isRightViewAlwaysVisibleForCurrentOrientation ? [self.rightViewBackgroundColor colorWithAlphaComponent:1.0] : self.rightViewBackgroundColor;
+            self.rightViewStyleView.effect = self.rightViewBackgroundBlurEffect;
 
-            if (self.leftViewPresentationStyle == LGSideMenuPresentationStyleSlideAbove) {
-                self.rightViewStyleView.backgroundColor = self.isRightViewAlwaysVisibleForCurrentOrientation ? [self.rightViewBackgroundColor colorWithAlphaComponent:1.0] : self.rightViewBackgroundColor;
-                self.rightViewStyleView.effect = self.rightViewBackgroundBlurEffect;
-            }
-            else {
-                self.rightViewStyleView.backgroundColor = nil;
-                self.rightViewStyleView.effect = nil;
-            }
-
-            [LGSideMenuHelper imageView:self.rightViewBorderAndShadowView
-                           setImageSafe:[LGSideMenuDrawer drawRectangleWithViewSize:self.rightViewContainer.bounds.size
-                                                                     roundedCorners:0.0
-                                                                       cornerRadius:0.0
-                                                                        strokeColor:self.rightViewLayerBorderColor
-                                                                        strokeWidth:self.rightViewLayerBorderWidth
-                                                                        shadowColor:self.rightViewLayerShadowColor
-                                                                         shadowBlur:self.rightViewLayerShadowRadius]];
+            self.rightViewBorderView.strokeColor = self.rightViewLayerBorderColor;
+            self.rightViewBorderView.strokeWidth = self.rightViewLayerBorderWidth;
+            self.rightViewBorderView.shadowColor = self.rightViewLayerShadowColor;
+            self.rightViewBorderView.shadowBlur = self.rightViewLayerShadowRadius;
+            [self.rightViewBorderView setNeedsDisplay];
         }
 
-        if (self.rightViewBackgroundColorView) {
-            self.rightViewBackgroundColorView.backgroundColor = self.rightViewBackgroundColor;
-        }
-
-        if (self.rightViewBackgroundImageView) {
-            [LGSideMenuHelper imageView:self.rightViewBackgroundImageView setImageSafe:self.rightViewBackgroundImage];
+        if (self.rightViewBackgroundView) {
+            self.rightViewBackgroundView.backgroundColor = self.rightViewBackgroundColor;
+            [LGSideMenuHelper imageView:self.rightViewBackgroundView setImageSafe:self.rightViewBackgroundImage];
         }
     }
 }
@@ -2309,8 +2125,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 
     if (self.leftView) {
         if (self.isLeftViewAlwaysVisibleForCurrentOrientation) {
-            self.leftViewBackgroundColorView.hidden = NO;
-            self.leftViewBackgroundImageView.hidden = NO;
+            self.leftViewBackgroundView.hidden = NO;
             self.leftViewStyleView.hidden = NO;
             self.leftViewContainer.hidden = NO;
 
@@ -2319,8 +2134,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
             rootViewCoverViewHiddenForLeftView = YES;
         }
         else if (self.isLeftViewVisible) {
-            self.leftViewBackgroundColorView.hidden = NO;
-            self.leftViewBackgroundImageView.hidden = NO;
+            self.leftViewBackgroundView.hidden = NO;
             self.leftViewStyleView.hidden = NO;
             self.leftViewContainer.hidden = NO;
 
@@ -2331,15 +2145,13 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
         else if (self.isLeftViewHidden) {
             if (delay) {
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^(void) {
-                    self.leftViewBackgroundColorView.hidden = YES;
-                    self.leftViewBackgroundImageView.hidden = YES;
+                    self.leftViewBackgroundView.hidden = YES;
                     self.leftViewStyleView.hidden = YES;
                     self.leftViewContainer.hidden = YES;
                 });
             }
             else {
-                self.leftViewBackgroundColorView.hidden = YES;
-                self.leftViewBackgroundImageView.hidden = YES;
+                self.leftViewBackgroundView.hidden = YES;
                 self.leftViewStyleView.hidden = YES;
                 self.leftViewContainer.hidden = YES;
             }
@@ -2358,8 +2170,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 
     if (self.rightView) {
         if (self.isRightViewAlwaysVisibleForCurrentOrientation) {
-            self.rightViewBackgroundColorView.hidden = NO;
-            self.rightViewBackgroundImageView.hidden = NO;
+            self.rightViewBackgroundView.hidden = NO;
             self.rightViewStyleView.hidden = NO;
             self.rightViewContainer.hidden = NO;
 
@@ -2368,8 +2179,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
             rootViewCoverViewHiddenForRightView = YES;
         }
         else if (self.isRightViewVisible) {
-            self.rightViewBackgroundColorView.hidden = NO;
-            self.rightViewBackgroundImageView.hidden = NO;
+            self.rightViewBackgroundView.hidden = NO;
             self.rightViewStyleView.hidden = NO;
             self.rightViewContainer.hidden = NO;
 
@@ -2380,15 +2190,13 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
         else if (self.isRightViewHidden) {
             if (delay) {
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^(void) {
-                    self.rightViewBackgroundColorView.hidden = YES;
-                    self.rightViewBackgroundImageView.hidden = YES;
+                    self.rightViewBackgroundView.hidden = YES;
                     self.rightViewStyleView.hidden = YES;
                     self.rightViewContainer.hidden = YES;
                 });
             }
             else {
-                self.rightViewBackgroundColorView.hidden = YES;
-                self.rightViewBackgroundImageView.hidden = YES;
+                self.rightViewBackgroundView.hidden = YES;
                 self.rightViewStyleView.hidden = YES;
                 self.rightViewContainer.hidden = YES;
             }
@@ -2507,7 +2315,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 
 #pragma mark -
 
-- (void)showLeftViewAnimated:(BOOL)animated completionHandler:(LGSideMenuControllerCompletionHandler)completionHandler {
+- (void)showLeftViewAnimated:(BOOL)animated completionHandler:(LGSideMenuCompletionHandler)completionHandler {
     if (!self.leftView ||
         self.isLeftViewDisabled ||
         self.isLeftViewShowing ||
@@ -2522,7 +2330,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
     [self showLeftViewAnimatedActions:animated completionHandler:completionHandler];
 }
 
-- (void)hideLeftViewAnimated:(BOOL)animated completionHandler:(LGSideMenuControllerCompletionHandler)completionHandler {
+- (void)hideLeftViewAnimated:(BOOL)animated completionHandler:(LGSideMenuCompletionHandler)completionHandler {
     if (!self.leftView ||
         self.isLeftViewDisabled ||
         self.isLeftViewHidden ||
@@ -2537,7 +2345,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
     [self hideLeftViewAnimatedActions:animated completionHandler:completionHandler];
 }
 
-- (void)toggleLeftViewAnimated:(BOOL)animated completionHandler:(LGSideMenuControllerCompletionHandler)completionHandler {
+- (void)toggleLeftViewAnimated:(BOOL)animated completionHandler:(LGSideMenuCompletionHandler)completionHandler {
     if (self.isLeftViewShowing) {
         [self hideLeftViewAnimated:animated completionHandler:completionHandler];
     }
@@ -2548,19 +2356,19 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 
 #pragma mark -
 
-- (void)showLeftViewAnimated:(BOOL)animated delay:(NSTimeInterval)delay completionHandler:(LGSideMenuControllerCompletionHandler)completionHandler {
+- (void)showLeftViewAnimated:(BOOL)animated delay:(NSTimeInterval)delay completionHandler:(LGSideMenuCompletionHandler)completionHandler {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self showLeftViewAnimated:animated completionHandler:completionHandler];
     });
 }
 
-- (void)hideLeftViewAnimated:(BOOL)animated delay:(NSTimeInterval)delay completionHandler:(LGSideMenuControllerCompletionHandler)completionHandler {
+- (void)hideLeftViewAnimated:(BOOL)animated delay:(NSTimeInterval)delay completionHandler:(LGSideMenuCompletionHandler)completionHandler {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self hideLeftViewAnimated:animated completionHandler:completionHandler];
     });
 }
 
-- (void)toggleLeftViewAnimated:(BOOL)animated delay:(NSTimeInterval)delay completionHandler:(LGSideMenuControllerCompletionHandler)completionHandler {
+- (void)toggleLeftViewAnimated:(BOOL)animated delay:(NSTimeInterval)delay completionHandler:(LGSideMenuCompletionHandler)completionHandler {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self toggleLeftViewAnimated:animated completionHandler:completionHandler];
     });
@@ -2581,7 +2389,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
     if (withGesture) {
         [LGSideMenuHelper statusBarAppearanceUpdateAnimated:YES
                                              viewController:self
-                                                   duration:self.leftViewAnimationSpeed
+                                                   duration:self.leftViewAnimationDuration
                                                      hidden:self.leftViewStatusBarHidden
                                                       style:self.leftViewStatusBarStyle
                                                   animation:self.leftViewStatusBarUpdateAnimation];
@@ -2592,7 +2400,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
     }
 }
 
-- (void)showLeftViewAnimatedActions:(BOOL)animated completionHandler:(LGSideMenuControllerCompletionHandler)completionHandler {
+- (void)showLeftViewAnimatedActions:(BOOL)animated completionHandler:(LGSideMenuCompletionHandler)completionHandler {
     if (self.leftViewGoingToShow) {
         [self willShowLeftViewCallbacks];
     }
@@ -2601,7 +2409,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 
     [LGSideMenuHelper statusBarAppearanceUpdateAnimated:animated
                                          viewController:self
-                                               duration:self.leftViewAnimationSpeed
+                                               duration:self.leftViewAnimationDuration
                                                  hidden:self.leftViewStatusBarHidden
                                                   style:self.leftViewStatusBarStyle
                                               animation:self.leftViewStatusBarUpdateAnimation];
@@ -2612,19 +2420,24 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
         self.gesturesHandler.animating = YES;
 
         [LGSideMenuHelper
-         animateWithDuration:self.leftViewAnimationSpeed
+         animateWithDuration:self.leftViewAnimationDuration
          animations:^(void) {
              [self rootViewsTransformValidateWithPercentage:1.0];
              [self leftViewsTransformValidateWithPercentage:1.0];
 
              // -----
 
-             if (self.showLeftViewAnimationsBlock) {
-                 self.showLeftViewAnimationsBlock(self, self.leftView, self.leftViewAnimationSpeed);
+             [[NSNotificationCenter defaultCenter] postNotificationName:LGSideMenuShowLeftViewAnimationsNotification
+                                                                 object:self
+                                                               userInfo:@{kLGSideMenuView: self.leftView,
+                                                                          kLGSideMenuAnimationDuration: @(self.leftViewAnimationDuration)}];
+
+             if (self.showLeftViewAnimations) {
+                 self.showLeftViewAnimations(self, self.leftView, self.leftViewAnimationDuration);
              }
 
-             if (self.delegate && [self.delegate respondsToSelector:@selector(showAnimationsBlockForLeftView:sideMenuController:duration:)]) {
-                 [self.delegate showAnimationsBlockForLeftView:self.leftView sideMenuController:self duration:self.leftViewAnimationSpeed];
+             if (self.delegate && [self.delegate respondsToSelector:@selector(showAnimationsForLeftView:sideMenuController:duration:)]) {
+                 [self.delegate showAnimationsForLeftView:self.leftView sideMenuController:self duration:self.leftViewAnimationDuration];
              }
          }
          completion:^(BOOL finished) {
@@ -2680,7 +2493,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
     }
 }
 
-- (void)hideLeftViewAnimatedActions:(BOOL)animated completionHandler:(LGSideMenuControllerCompletionHandler)completionHandler {
+- (void)hideLeftViewAnimatedActions:(BOOL)animated completionHandler:(LGSideMenuCompletionHandler)completionHandler {
     if (self.isLeftViewGoingToHide) {
         [self willHideLeftViewCallbacks];
     }
@@ -2689,7 +2502,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 
     [LGSideMenuHelper statusBarAppearanceUpdateAnimated:animated
                                          viewController:self
-                                               duration:self.leftViewAnimationSpeed
+                                               duration:self.leftViewAnimationDuration
                                                  hidden:self.leftViewStatusBarHidden
                                                   style:self.leftViewStatusBarStyle
                                               animation:self.leftViewStatusBarUpdateAnimation];
@@ -2700,19 +2513,24 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
         self.gesturesHandler.animating = YES;
 
         [LGSideMenuHelper
-         animateWithDuration:self.leftViewAnimationSpeed
+         animateWithDuration:self.leftViewAnimationDuration
          animations:^(void) {
              [self rootViewsTransformValidateWithPercentage:0.0];
              [self leftViewsTransformValidateWithPercentage:0.0];
 
              // -----
 
-             if (self.hideLeftViewAnimationsBlock) {
-                 self.hideLeftViewAnimationsBlock(self, self.leftView, self.leftViewAnimationSpeed);
+             [[NSNotificationCenter defaultCenter] postNotificationName:LGSideMenuHideLeftViewAnimationsNotification
+                                                                 object:self
+                                                               userInfo:@{kLGSideMenuView: self.leftView,
+                                                                          kLGSideMenuAnimationDuration: @(self.leftViewAnimationDuration)}];
+
+             if (self.hideLeftViewAnimations) {
+                 self.hideLeftViewAnimations(self, self.leftView, self.leftViewAnimationDuration);
              }
 
-             if (self.delegate && [self.delegate respondsToSelector:@selector(hideAnimationsBlockForLeftView:sideMenuController:duration:)]) {
-                 [self.delegate hideAnimationsBlockForLeftView:self.leftView sideMenuController:self duration:self.leftViewAnimationSpeed];
+             if (self.delegate && [self.delegate respondsToSelector:@selector(hideAnimationsForLeftView:sideMenuController:duration:)]) {
+                 [self.delegate hideAnimationsForLeftView:self.leftView sideMenuController:self duration:self.leftViewAnimationDuration];
              }
          }
          completion:^(BOOL finished) {
@@ -2738,7 +2556,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
     if (withGesture) {
         [LGSideMenuHelper statusBarAppearanceUpdateAnimated:YES
                                              viewController:self
-                                                   duration:self.leftViewAnimationSpeed
+                                                   duration:self.leftViewAnimationDuration
                                                      hidden:self.leftViewStatusBarHidden
                                                       style:self.leftViewStatusBarStyle
                                                   animation:self.leftViewStatusBarUpdateAnimation];
@@ -2822,7 +2640,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 
 #pragma mark -
 
-- (void)showRightViewAnimated:(BOOL)animated completionHandler:(LGSideMenuControllerCompletionHandler)completionHandler {
+- (void)showRightViewAnimated:(BOOL)animated completionHandler:(LGSideMenuCompletionHandler)completionHandler {
     if (!self.rightView ||
         self.isRightViewDisabled ||
         self.isRightViewShowing ||
@@ -2837,7 +2655,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
     [self showRightViewAnimatedActions:animated completionHandler:completionHandler];
 }
 
-- (void)hideRightViewAnimated:(BOOL)animated completionHandler:(LGSideMenuControllerCompletionHandler)completionHandler {
+- (void)hideRightViewAnimated:(BOOL)animated completionHandler:(LGSideMenuCompletionHandler)completionHandler {
     if (!self.rightView ||
         self.isRightViewDisabled ||
         self.isRightViewHidden ||
@@ -2852,7 +2670,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
     [self hideRightViewAnimatedActions:animated completionHandler:completionHandler];
 }
 
-- (void)toggleRightViewAnimated:(BOOL)animated completionHandler:(LGSideMenuControllerCompletionHandler)completionHandler {
+- (void)toggleRightViewAnimated:(BOOL)animated completionHandler:(LGSideMenuCompletionHandler)completionHandler {
     if (self.isRightViewShowing) {
         [self hideRightViewAnimated:animated completionHandler:completionHandler];
     }
@@ -2863,19 +2681,19 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 
 #pragma mark -
 
-- (void)showRightViewAnimated:(BOOL)animated delay:(NSTimeInterval)delay completionHandler:(LGSideMenuControllerCompletionHandler)completionHandler {
+- (void)showRightViewAnimated:(BOOL)animated delay:(NSTimeInterval)delay completionHandler:(LGSideMenuCompletionHandler)completionHandler {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self showRightViewAnimated:animated completionHandler:completionHandler];
     });
 }
 
-- (void)hideRightViewAnimated:(BOOL)animated delay:(NSTimeInterval)delay completionHandler:(LGSideMenuControllerCompletionHandler)completionHandler {
+- (void)hideRightViewAnimated:(BOOL)animated delay:(NSTimeInterval)delay completionHandler:(LGSideMenuCompletionHandler)completionHandler {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self hideRightViewAnimated:animated completionHandler:completionHandler];
     });
 }
 
-- (void)toggleRightViewAnimated:(BOOL)animated delay:(NSTimeInterval)delay completionHandler:(LGSideMenuControllerCompletionHandler)completionHandler {
+- (void)toggleRightViewAnimated:(BOOL)animated delay:(NSTimeInterval)delay completionHandler:(LGSideMenuCompletionHandler)completionHandler {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self toggleRightViewAnimated:animated completionHandler:completionHandler];
     });
@@ -2896,7 +2714,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
     if (withGesture) {
         [LGSideMenuHelper statusBarAppearanceUpdateAnimated:YES
                                              viewController:self
-                                                   duration:self.rightViewAnimationSpeed
+                                                   duration:self.rightViewAnimationDuration
                                                      hidden:self.rightViewStatusBarHidden
                                                       style:self.rightViewStatusBarStyle
                                                   animation:self.rightViewStatusBarUpdateAnimation];
@@ -2907,7 +2725,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
     }
 }
 
-- (void)showRightViewAnimatedActions:(BOOL)animated completionHandler:(LGSideMenuControllerCompletionHandler)completionHandler {
+- (void)showRightViewAnimatedActions:(BOOL)animated completionHandler:(LGSideMenuCompletionHandler)completionHandler {
     if (self.rightViewGoingToShow) {
         [self willShowRightViewCallbacks];
     }
@@ -2916,7 +2734,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 
     [LGSideMenuHelper statusBarAppearanceUpdateAnimated:animated
                                          viewController:self
-                                               duration:self.rightViewAnimationSpeed
+                                               duration:self.rightViewAnimationDuration
                                                  hidden:self.rightViewStatusBarHidden
                                                   style:self.rightViewStatusBarStyle
                                               animation:self.rightViewStatusBarUpdateAnimation];
@@ -2927,19 +2745,24 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
         self.gesturesHandler.animating = YES;
 
         [LGSideMenuHelper
-         animateWithDuration:self.rightViewAnimationSpeed
+         animateWithDuration:self.rightViewAnimationDuration
          animations:^(void) {
              [self rootViewsTransformValidateWithPercentage:1.0];
              [self rightViewsTransformValidateWithPercentage:1.0];
 
              // -----
 
-             if (self.showRightViewAnimationsBlock) {
-                 self.showRightViewAnimationsBlock(self, self.rightView, self.rightViewAnimationSpeed);
+             [[NSNotificationCenter defaultCenter] postNotificationName:LGSideMenuShowRightViewAnimationsNotification
+                                                                 object:self
+                                                               userInfo:@{kLGSideMenuView: self.rightView,
+                                                                          kLGSideMenuAnimationDuration: @(self.rightViewAnimationDuration)}];
+
+             if (self.showRightViewAnimations) {
+                 self.showRightViewAnimations(self, self.rightView, self.rightViewAnimationDuration);
              }
 
-             if (self.delegate && [self.delegate respondsToSelector:@selector(showAnimationsBlockForRightView:sideMenuController:duration:)]) {
-                 [self.delegate showAnimationsBlockForRightView:self.rightView sideMenuController:self duration:self.rightViewAnimationSpeed];
+             if (self.delegate && [self.delegate respondsToSelector:@selector(showAnimationsForRightView:sideMenuController:duration:)]) {
+                 [self.delegate showAnimationsForRightView:self.rightView sideMenuController:self duration:self.rightViewAnimationDuration];
              }
          }
          completion:^(BOOL finished) {
@@ -2995,7 +2818,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
     }
 }
 
-- (void)hideRightViewAnimatedActions:(BOOL)animated completionHandler:(LGSideMenuControllerCompletionHandler)completionHandler {
+- (void)hideRightViewAnimatedActions:(BOOL)animated completionHandler:(LGSideMenuCompletionHandler)completionHandler {
     if (self.isRightViewGoingToHide) {
         [self willHideRightViewCallbacks];
     }
@@ -3004,7 +2827,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 
     [LGSideMenuHelper statusBarAppearanceUpdateAnimated:animated
                                          viewController:self
-                                               duration:self.rightViewAnimationSpeed
+                                               duration:self.rightViewAnimationDuration
                                                  hidden:self.rightViewStatusBarHidden
                                                   style:self.rightViewStatusBarStyle
                                               animation:self.rightViewStatusBarUpdateAnimation];
@@ -3015,19 +2838,24 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
         self.gesturesHandler.animating = YES;
 
         [LGSideMenuHelper
-         animateWithDuration:self.rightViewAnimationSpeed
+         animateWithDuration:self.rightViewAnimationDuration
          animations:^(void) {
              [self rootViewsTransformValidateWithPercentage:0.0];
              [self rightViewsTransformValidateWithPercentage:0.0];
 
              // -----
 
-             if (self.hideRightViewAnimationsBlock) {
-                 self.hideRightViewAnimationsBlock(self, self.rightView, self.rightViewAnimationSpeed);
+             [[NSNotificationCenter defaultCenter] postNotificationName:LGSideMenuHideRightViewAnimationsNotification
+                                                                 object:self
+                                                               userInfo:@{kLGSideMenuView: self.rightView,
+                                                                          kLGSideMenuAnimationDuration: @(self.rightViewAnimationDuration)}];
+
+             if (self.hideRightViewAnimations) {
+                 self.hideRightViewAnimations(self, self.rightView, self.rightViewAnimationDuration);
              }
 
-             if (self.delegate && [self.delegate respondsToSelector:@selector(hideAnimationsBlockForRightView:sideMenuController:duration:)]) {
-                 [self.delegate hideAnimationsBlockForRightView:self.rightView sideMenuController:self duration:self.rightViewAnimationSpeed];
+             if (self.delegate && [self.delegate respondsToSelector:@selector(hideAnimationsForRightView:sideMenuController:duration:)]) {
+                 [self.delegate hideAnimationsForRightView:self.rightView sideMenuController:self duration:self.rightViewAnimationDuration];
              }
          }
          completion:^(BOOL finished) {
@@ -3053,7 +2881,7 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
     if (withGesture) {
         [LGSideMenuHelper statusBarAppearanceUpdateAnimated:YES
                                              viewController:self
-                                                   duration:self.rightViewAnimationSpeed
+                                                   duration:self.rightViewAnimationDuration
                                                      hidden:self.rightViewStatusBarHidden
                                                       style:self.rightViewStatusBarStyle
                                                   animation:self.rightViewStatusBarUpdateAnimation];
@@ -3082,7 +2910,9 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 #pragma mark - Callbacks
 
 - (void)willShowLeftViewCallbacks {
-    [[NSNotificationCenter defaultCenter] postNotificationName:LGSideMenuControllerWillShowLeftViewNotification object:self userInfo:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:LGSideMenuWillShowLeftViewNotification
+                                                        object:self
+                                                      userInfo:@{kLGSideMenuView: self.leftView}];
 
     if (self.willShowLeftView) {
         self.willShowLeftView(self, self.leftView);
@@ -3094,7 +2924,9 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 }
 
 - (void)didShowLeftViewCallbacks {
-    [[NSNotificationCenter defaultCenter] postNotificationName:LGSideMenuControllerDidShowLeftViewNotification object:self userInfo:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:LGSideMenuDidShowLeftViewNotification
+                                                        object:self
+                                                      userInfo:@{kLGSideMenuView: self.leftView}];
 
     if (self.didShowLeftView) {
         self.didShowLeftView(self, self.leftView);
@@ -3106,7 +2938,9 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 }
 
 - (void)willHideLeftViewCallbacks {
-    [[NSNotificationCenter defaultCenter] postNotificationName:LGSideMenuControllerWillHideLeftViewNotification object:self userInfo:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:LGSideMenuWillHideLeftViewNotification
+                                                        object:self
+                                                      userInfo:@{kLGSideMenuView: self.leftView}];
 
     if (self.willHideLeftView) {
         self.willHideLeftView(self, self.leftView);
@@ -3118,7 +2952,9 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 }
 
 - (void)didHideLeftViewCallbacks {
-    [[NSNotificationCenter defaultCenter] postNotificationName:LGSideMenuControllerDidHideLeftViewNotification object:self userInfo:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:LGSideMenuDidHideLeftViewNotification
+                                                        object:self
+                                                      userInfo:@{kLGSideMenuView: self.leftView}];
 
     if (self.didHideLeftView) {
         self.didHideLeftView(self, self.leftView);
@@ -3130,7 +2966,9 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 }
 
 - (void)willShowRightViewCallbacks {
-    [[NSNotificationCenter defaultCenter] postNotificationName:LGSideMenuControllerWillShowRightViewNotification object:self userInfo:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:LGSideMenuWillShowRightViewNotification
+                                                        object:self
+                                                      userInfo:@{kLGSideMenuView: self.rightView}];
 
     if (self.willShowRightView) {
         self.willShowRightView(self, self.rightView);
@@ -3142,7 +2980,9 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 }
 
 - (void)didShowRightViewCallbacks {
-    [[NSNotificationCenter defaultCenter] postNotificationName:LGSideMenuControllerDidShowRightViewNotification object:self userInfo:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:LGSideMenuDidShowRightViewNotification
+                                                        object:self
+                                                      userInfo:@{kLGSideMenuView: self.rightView}];
 
     if (self.didShowRightView) {
         self.didShowRightView(self, self.rightView);
@@ -3154,7 +2994,9 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 }
 
 - (void)willHideRightViewCallbacks {
-    [[NSNotificationCenter defaultCenter] postNotificationName:LGSideMenuControllerWillHideRightViewNotification object:self userInfo:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:LGSideMenuWillHideRightViewNotification
+                                                        object:self
+                                                      userInfo:@{kLGSideMenuView: self.rightView}];
 
     if (self.willHideRightView) {
         self.willHideRightView(self, self.rightView);
@@ -3166,7 +3008,9 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 }
 
 - (void)didHideRightViewCallbacks {
-    [[NSNotificationCenter defaultCenter] postNotificationName:LGSideMenuControllerDidHideRightViewNotification object:self userInfo:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:LGSideMenuDidHideRightViewNotification
+                                                        object:self
+                                                      userInfo:@{kLGSideMenuView: self.rightView}];
 
     if (self.didHideRightView) {
         self.didHideRightView(self, self.rightView);
@@ -3233,7 +3077,8 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
                 [self rootViewsTransformValidateWithPercentage:percentage];
                 [self leftViewsTransformValidateWithPercentage:percentage];
             }
-            else if (gestureRecognizer.state == UIGestureRecognizerStateEnded && self.leftViewGestireStartX) {
+            else if ((gestureRecognizer.state == UIGestureRecognizerStateEnded || gestureRecognizer.state == UIGestureRecognizerStateCancelled)
+                     && self.leftViewGestireStartX) {
                 if ((percentage < 1.0 && velocity.x > 0.0) || (velocity.x == 0.0 && percentage >= 0.5)) {
                     self.leftViewGoingToShow = YES;
                     self.leftViewGoingToHide = NO;
@@ -3301,7 +3146,8 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
                 [self rootViewsTransformValidateWithPercentage:percentage];
                 [self rightViewsTransformValidateWithPercentage:percentage];
             }
-            else if (gestureRecognizer.state == UIGestureRecognizerStateEnded && self.rightViewGestireStartX) {
+            else if ((gestureRecognizer.state == UIGestureRecognizerStateEnded || gestureRecognizer.state == UIGestureRecognizerStateCancelled)
+                     && self.rightViewGestireStartX) {
                 if ((percentage < 1.0 && velocity.x < 0.0) || (velocity.x == 0.0 && percentage >= 0.5)) {
                     self.rightViewGoingToShow = YES;
                     self.rightViewGoingToHide = NO;
@@ -3333,20 +3179,32 @@ rightViewBackgroundImageFinalScale = _rightViewBackgroundImageFinalScale;
 
 #pragma mark - Deprecated
 
-NSString * _Nonnull const LGSideMenuControllerWillDismissLeftViewNotification  = @"LGSideMenuControllerWillHideLeftViewNotification";
-NSString * _Nonnull const LGSideMenuControllerDidDismissLeftViewNotification   = @"LGSideMenuControllerDidHideLeftViewNotification";
-NSString * _Nonnull const LGSideMenuControllerWillDismissRightViewNotification = @"LGSideMenuControllerWillHideRightViewNotification";
-NSString * _Nonnull const LGSideMenuControllerDidDismissRightViewNotification  = @"LGSideMenuControllerDidHideRightViewNotification";
+NSString * _Nonnull const LGSideMenuControllerWillDismissLeftViewNotification  = @"LGSideMenuWillHideLeftViewNotification";
+NSString * _Nonnull const LGSideMenuControllerDidDismissLeftViewNotification   = @"LGSideMenuDidHideLeftViewNotification";
+NSString * _Nonnull const LGSideMenuControllerWillDismissRightViewNotification = @"LGSideMenuWillHideRightViewNotification";
+NSString * _Nonnull const LGSideMenuControllerDidDismissRightViewNotification  = @"LGSideMenuDidHideRightViewNotification";
 
-NSString * _Nonnull const kLGSideMenuControllerWillShowLeftViewNotification = @"LGSideMenuControllerWillShowLeftViewNotification";
-NSString * _Nonnull const kLGSideMenuControllerWillHideLeftViewNotification = @"LGSideMenuControllerWillHideLeftViewNotification";
-NSString * _Nonnull const kLGSideMenuControllerDidShowLeftViewNotification  = @"LGSideMenuControllerDidShowLeftViewNotification";
-NSString * _Nonnull const kLGSideMenuControllerDidHideLeftViewNotification  = @"LGSideMenuControllerDidHideLeftViewNotification";
+NSString * _Nonnull const kLGSideMenuControllerWillShowLeftViewNotification = @"LGSideMenuWillShowLeftViewNotification";
+NSString * _Nonnull const kLGSideMenuControllerWillHideLeftViewNotification = @"LGSideMenuWillHideLeftViewNotification";
+NSString * _Nonnull const kLGSideMenuControllerDidShowLeftViewNotification  = @"LGSideMenuDidShowLeftViewNotification";
+NSString * _Nonnull const kLGSideMenuControllerDidHideLeftViewNotification  = @"LGSideMenuDidHideLeftViewNotification";
 
-NSString * _Nonnull const kLGSideMenuControllerWillShowRightViewNotification = @"LGSideMenuControllerWillShowRightViewNotification";
-NSString * _Nonnull const kLGSideMenuControllerWillHideRightViewNotification = @"LGSideMenuControllerWillHideRightViewNotification";
-NSString * _Nonnull const kLGSideMenuControllerDidShowRightViewNotification  = @"LGSideMenuControllerDidShowRightViewNotification";
-NSString * _Nonnull const kLGSideMenuControllerDidHideRightViewNotification  = @"LGSideMenuControllerDidHideRightViewNotification";
+NSString * _Nonnull const kLGSideMenuControllerWillShowRightViewNotification = @"LGSideMenuWillShowRightViewNotification";
+NSString * _Nonnull const kLGSideMenuControllerWillHideRightViewNotification = @"LGSideMenuWillHideRightViewNotification";
+NSString * _Nonnull const kLGSideMenuControllerDidShowRightViewNotification  = @"LGSideMenuDidShowRightViewNotification";
+NSString * _Nonnull const kLGSideMenuControllerDidHideRightViewNotification  = @"LGSideMenuDidHideRightViewNotification";
+
+NSString * _Nonnull const LGSideMenuControllerWillShowLeftViewNotification  = @"LGSideMenuWillShowLeftViewNotification";
+NSString * _Nonnull const LGSideMenuControllerDidShowLeftViewNotification   = @"LGSideMenuDidShowLeftViewNotification";
+
+NSString * _Nonnull const LGSideMenuControllerWillHideLeftViewNotification = @"LGSideMenuWillHideLeftViewNotification";
+NSString * _Nonnull const LGSideMenuControllerDidHideLeftViewNotification  = @"LGSideMenuDidHideLeftViewNotification";
+
+NSString * _Nonnull const LGSideMenuControllerWillShowRightViewNotification = @"LGSideMenuWillShowRightViewNotification";
+NSString * _Nonnull const LGSideMenuControllerDidShowRightViewNotification  = @"LGSideMenuDidShowRightViewNotification";
+
+NSString * _Nonnull const LGSideMenuControllerWillHideRightViewNotification = @"LGSideMenuWillHideRightViewNotification";
+NSString * _Nonnull const LGSideMenuControllerDidHideRightViewNotification  = @"LGSideMenuDidHideRightViewNotification";
 
 @implementation LGSideMenuController (Deprecated)
 
@@ -3374,6 +3232,54 @@ NSString * _Nonnull const kLGSideMenuControllerDidHideRightViewNotification  = @
     return self.isRightViewAlwaysVisibleForCurrentOrientation;
 }
 
+- (void)setLeftViewAnimationSpeed:(NSTimeInterval)leftViewAnimationSpeed {
+    self.leftViewAnimationDuration = leftViewAnimationSpeed;
+}
+
+- (NSTimeInterval)leftViewAnimationSpeed {
+    return self.leftViewAnimationDuration;
+}
+
+- (void)setRightViewAnimationSpeed:(NSTimeInterval)rightViewAnimationSpeed {
+    self.rightViewAnimationDuration = rightViewAnimationSpeed;
+}
+
+- (NSTimeInterval)rightViewAnimationSpeed {
+    return self.rightViewAnimationDuration;
+}
+
+- (void)setShowLeftViewAnimationsBlock:(LGSideMenuAnimationsBlock)showLeftViewAnimationsBlock {
+    self.showLeftViewAnimations = showLeftViewAnimationsBlock;
+}
+
+- (LGSideMenuAnimationsBlock)showLeftViewAnimationsBlock {
+    return self.showLeftViewAnimations;
+}
+
+- (void)setHideLeftViewAnimationsBlock:(LGSideMenuAnimationsBlock)hideLeftViewAnimationsBlock {
+    self.hideLeftViewAnimations = hideLeftViewAnimationsBlock;
+}
+
+- (LGSideMenuAnimationsBlock)hideLeftViewAnimationsBlock {
+    return self.hideLeftViewAnimations;
+}
+
+- (void)setShowRightViewAnimationsBlock:(LGSideMenuAnimationsBlock)showRightViewAnimationsBlock {
+    self.showRightViewAnimations = showRightViewAnimationsBlock;
+}
+
+- (LGSideMenuAnimationsBlock)showRightViewAnimationsBlock {
+    return self.showRightViewAnimations;
+}
+
+- (void)setHideRightViewAnimationsBlock:(LGSideMenuAnimationsBlock)hideRightViewAnimationsBlock {
+    self.hideRightViewAnimations = hideRightViewAnimationsBlock;
+}
+
+- (LGSideMenuAnimationsBlock)hideRightViewAnimationsBlock {
+    return self.hideRightViewAnimations;
+}
+
 #pragma mark -
 
 - (BOOL)isLeftViewAlwaysVisibleForInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
@@ -3384,11 +3290,11 @@ NSString * _Nonnull const kLGSideMenuControllerDidHideRightViewNotification  = @
     return [self isRightViewAlwaysVisibleForInterfaceOrientation:interfaceOrientation];
 }
 
-- (void)showHideLeftViewAnimated:(BOOL)animated completionHandler:(LGSideMenuControllerCompletionHandler)completionHandler {
+- (void)showHideLeftViewAnimated:(BOOL)animated completionHandler:(LGSideMenuCompletionHandler)completionHandler {
     [self toggleLeftViewAnimated:animated completionHandler:completionHandler];
 }
 
-- (void)showHideRightViewAnimated:(BOOL)animated completionHandler:(LGSideMenuControllerCompletionHandler)completionHandler {
+- (void)showHideRightViewAnimated:(BOOL)animated completionHandler:(LGSideMenuCompletionHandler)completionHandler {
     [self toggleRightViewAnimated:animated completionHandler:completionHandler];
 }
 
